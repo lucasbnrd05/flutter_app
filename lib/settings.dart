@@ -15,13 +15,12 @@ class SettingsPage extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            // Custom Drawer Header to center everything
             Container(
-              color: Colors.green.shade100, // Optional background color for header
+              color: Colors.green.shade100,
               padding: const EdgeInsets.all(20.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
-                crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
                     radius: 40,
@@ -65,8 +64,7 @@ class SettingsPage extends StatelessWidget {
               leading: const Icon(Icons.settings),
               title: const Text("Settings"),
               onTap: () {
-                Navigator.pop(context); // Fermer le drawer (Redondant ici)
-                // Naviguer vers la page Settings (ça pourrait être redondant ici)
+                Navigator.pop(context);
               },
             ),
           ],
