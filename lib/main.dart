@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
 import 'dart:convert';
 
-// Importez les fichiers About et Settings
 import 'about.dart';
 import 'settings.dart';
 
