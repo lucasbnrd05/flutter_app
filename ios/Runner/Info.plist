@@ -29,6 +29,11 @@
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need your location for showing the map centered around you.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>We need your location for showing the map centered around you.</string>
+
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>

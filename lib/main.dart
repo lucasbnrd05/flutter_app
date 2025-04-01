@@ -1,79 +1,154 @@
 import 'package:flutter/material.dart';
+import "package:http/http.dart" as http;
+import 'dart:convert';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,
+      title: 'GreenWatch',
+      theme: ThemeData(primarySwatch: Colors.green),
+      home: const HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _HomePageState extends State<HomePage> {
+  String _weather = "Chargement...";
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+    fetchWeather();
   }
 
-  void _decrementCounter() {
-    setState(() {
-      _counter--;
-    });
+  // 🔥 Fonction pour récupérer la météo avec l'API MetaWeather
+  Future<void> fetchWeather() async {
+    const String cityId = "615702"; // ID pour Paris
+    final response = await http.get(Uri.parse(
+        "https://www.metaweather.com/api/location/$cityId/?format=json"));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _weather = "🌡 ${data['consolidated_weather'][0]['the_temp']}°C | ${data['consolidated_weather'][0]['weather_state_name']}";
+      });
+    } else {
+      setState(() {
+        _weather = "Impossible de récupérer la météo.";
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: const Text("GreenWatch 🌍"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              showAboutDialog(
+                context: context,
+                applicationName: "GreenWatch",
+                applicationVersion: "1.0.0",
+                applicationLegalese: "© 2024 GreenWatch",
+              );
+            },
+          ),
+        ],
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 🌿 IMAGE BANNIÈRE
+            Image.asset("assets/nature.jpg", height: 200, fit: BoxFit.cover),
+
+            const SizedBox(height: 20),
+
+            // 🌤 MÉTÉO ACTUELLE
+            Card(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: ListTile(
+                leading: const Icon(Icons.wb_sunny, color: Colors.orange, size: 40),
+                title: const Text("Météo actuelle à Paris", style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(_weather, style: const TextStyle(fontSize: 16)),
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: _decrementCounter,
-                  child: const Text('Decrement'),
-                ),
-                const SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: _incrementCounter,
-                  child: const Text('Increment'),
-                ),
-              ],
+
+            const SizedBox(height: 20),
+
+            // 🛠 BOUTONS D’ACCÈS RAPIDE
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.map),
+                    label: const Text("Voir la Carte"),
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.bar_chart),
+                    label: const Text("Voir les Données"),
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.eco),
+                    label: const Text("Solutions Naturelles"),
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                  ),
+                ],
+              ),
             ),
+
+            const SizedBox(height: 20),
+
+            // 🌱 CITATION INSPIRANTE
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Card(
+                color: Colors.green.shade100,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    "🌍 \"La Terre ne nous appartient pas, nous l’empruntons à nos enfants.\" – Antoine de Saint-Exupéry",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
           ],
         ),
       ),
