@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
 import 'dart:convert';
 
+// Importez les fichiers About et Settings
+import 'about.dart';
+import 'settings.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -28,7 +32,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _weather = "Chargement...";
+  String _weather = "Loading...";
 
   @override
   void initState() {
@@ -36,9 +40,9 @@ class _HomePageState extends State<HomePage> {
     fetchWeather();
   }
 
-  // 🔥 Fonction pour récupérer la météo avec l'API MetaWeather
+  // 🔥 Fetch weather function
   Future<void> fetchWeather() async {
-    const String cityId = "615702"; // ID pour Paris
+    const String cityId = "615702"; // ID for Paris
     final response = await http.get(Uri.parse(
         "https://www.metaweather.com/api/location/$cityId/?format=json"));
 
@@ -49,7 +53,7 @@ class _HomePageState extends State<HomePage> {
       });
     } else {
       setState(() {
-        _weather = "Impossible de récupérer la météo.";
+        _weather = "Unable to fetch weather.";
       });
     }
   }
@@ -73,16 +77,58 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const UserAccountsDrawerHeader(
+              accountName: Text("GreenWatch"),
+              accountEmail: Text("contact@greenwatch.com"),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.eco, color: Colors.green),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text("Home Page"),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text("About"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AboutPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text("Settings"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 🌿 IMAGE BANNIÈRE
+            // 🌿 HEADER IMAGE
             Image.asset("assets/nature.jpg", height: 200, fit: BoxFit.cover),
 
             const SizedBox(height: 20),
 
-            // 🌱 CITATION INSPIRANTE
+            // 🌱 INSPIRING QUOTE
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Card(
@@ -93,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                 child: const Padding(
                   padding: EdgeInsets.all(16),
                   child: Text(
-                    "🌍 \"La Terre ne nous appartient pas, nous l’empruntons à nos enfants.\" – Antoine de Saint-Exupéry",
+                    "🌍 \"The Earth does not belong to us, we borrow it from our children.\" – Antoine de Saint-Exupéry",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
                   ),
@@ -108,3 +154,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+
