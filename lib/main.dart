@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
                 context: context,
                 applicationName: "GreenWatch",
                 applicationVersion: "1.0.0",
-                applicationLegalese: "© 2024 GreenWatch",
+                applicationLegalese: "© 2025 GreenWatch",
               );
             },
           ),
@@ -79,53 +79,6 @@ class _HomePageState extends State<HomePage> {
           children: [
             // 🌿 IMAGE BANNIÈRE
             Image.asset("assets/nature.jpg", height: 200, fit: BoxFit.cover),
-
-            const SizedBox(height: 20),
-
-            // 🌤 MÉTÉO ACTUELLE
-            Card(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ListTile(
-                leading: const Icon(Icons.wb_sunny, color: Colors.orange, size: 40),
-                title: const Text("Météo actuelle à Paris", style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(_weather, style: const TextStyle(fontSize: 16)),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // 🛠 BOUTONS D’ACCÈS RAPIDE
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.map),
-                    label: const Text("Voir la Carte"),
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.bar_chart),
-                    label: const Text("Voir les Données"),
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.eco),
-                    label: const Text("Solutions Naturelles"),
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-                  ),
-                ],
-              ),
-            ),
 
             const SizedBox(height: 20),
 
