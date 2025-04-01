@@ -82,13 +82,12 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
 
-            // Custom Drawer Header to center everything
             Container(
-              color: Colors.green.shade100, // Optional background color for header
+              color: Colors.green.shade100,
               padding: const EdgeInsets.all(20.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
-                crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
                     radius: 40,
@@ -112,7 +111,7 @@ class _HomePageState extends State<HomePage> {
               leading: const Icon(Icons.home),
               title: const Text("Home Page"),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
             ListTile(
@@ -142,12 +141,10 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 🌿 HEADER IMAGE
             Image.asset("assets/nature.jpg", height: 200, fit: BoxFit.cover),
 
             const SizedBox(height: 20),
 
-            // 🌱 INSPIRING QUOTE
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Card(
