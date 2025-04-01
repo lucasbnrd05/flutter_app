@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'about.dart'; // Ajoutez cette ligne pour pouvoir naviguer vers la page About
-import 'main.dart'; // Ajoutez cette ligne pour pouvoir naviguer vers la page About
+import 'about.dart';
+import 'main.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
