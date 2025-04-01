@@ -15,12 +15,30 @@ class AboutPage extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            const UserAccountsDrawerHeader(
-              accountName: Text("GreenWatch"),
-              accountEmail: Text("contact@greenwatch.com"),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.eco, color: Colors.green),
+            // Custom Drawer Header to center everything
+            Container(
+              color: Colors.green.shade100, // Optional background color for header
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
+                crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.eco, color: Colors.green, size: 40),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "GreenWatch",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 5),
+                  const Text(
+                    "contact@greenwatch.com",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
               ),
             ),
             ListTile(
