@@ -13,8 +13,8 @@ Before you begin, ensure you have installed:
 
 1.  **Clone the Repository:**
     ```bash
-    git clone <YOUR_GIT_REPOSITORY_URL>
-    cd greenwatch-flutter-app # Or your project's directory name
+    git clone flutter_app
+    cd flutter_app 
     ```
 
 2.  **Install Flutter Dependencies:**
