@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
 import 'dart:convert';
+import 'dart:math';
 
 import 'about.dart';
 import 'settings.dart';
@@ -32,15 +33,29 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _weather = "Loading...";
+  final List<String> _quotes = [
+    "🌍 \"The Earth does not belong to us, we borrow it from our children.\" – Antoine de Saint-Exupéry",
+    "🌱 \"Nature always wears the colors of the spirit.\" – Ralph Waldo Emerson",
+    "🌿 \"Look deep into nature, and then you will understand everything better.\" – Albert Einstein",
+    "🍃 \"The greatest threat to our planet is the belief that someone else will save it.\" – Robert Swan",
+    "🌎 \"What we save, saves us.\" – Wendell Berry",
+    "🌳 \"The best time to plant a tree was 20 years ago. The second best time is now.\" – Chinese Proverb",
+    "🌻 \"He that plants trees loves others besides himself.\" – Thomas Fuller",
+    "🐝 \"We won’t have a society if we destroy the environment.\" – Margaret Mead",
+    "☀️ \"Keep close to Nature’s heart.\" – John Muir",
+    "🌊 \"Water and air, the two essential fluids on which all life depends, have become global garbage cans.\" – Jacques-Yves Cousteau",
+  ];
+
+  late String _randomQuote;
 
   @override
   void initState() {
     super.initState();
-    fetchWeather();
+    //fetchWeather();
+    _randomQuote = _quotes[Random().nextInt(_quotes.length)];
   }
 
-  // 🔥 Fetch weather function
-  Future<void> fetchWeather() async {
+  /*Future<void> fetchWeather() async {
     const String cityId = "615702"; // ID for Paris
     final response = await http.get(Uri.parse(
         "https://www.metaweather.com/api/location/$cityId/?format=json"));
@@ -48,7 +63,7 @@ class _HomePageState extends State<HomePage> {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {
-        _weather = "🌡 ${data['consolidated_weather'][0]['the_temp']}°C | ${data['consolidated_weather'][0]['weather_state_name']}";
+        _weather = "🌡 \${data['consolidated_weather'][0]['the_temp']}°C | \${data['consolidated_weather'][0]['weather_state_name']}";
       });
     } else {
       setState(() {
@@ -56,7 +71,7 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,7 +95,6 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-
             Container(
               color: Colors.green.shade100,
               padding: const EdgeInsets.all(20.0),
@@ -141,9 +155,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset("assets/nature.jpg", height: 200, fit: BoxFit.cover),
-
-            const SizedBox(height: 20),
-
+            const SizedBox(height: 50),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Card(
@@ -151,17 +163,16 @@ class _HomePageState extends State<HomePage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.all(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
                   child: Text(
-                    "🌍 \"The Earth does not belong to us, we borrow it from our children.\" – Antoine de Saint-Exupéry",
+                    _randomQuote,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                    style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
                   ),
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
           ],
         ),
@@ -169,5 +180,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
