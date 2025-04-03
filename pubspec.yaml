@@ -1,35 +1,29 @@
 name: flutter_app
 description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0' # Ajuste si nécessaire, mais le code fourni devrait marcher avec Flutter 3.16+ / Dart 3.2+
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.1 # Vérifie la dernière version stable sur pub.dev si tu veux
-  cupertino_icons: ^1.0.6 # Version stable commune
-  flutter_map: ^6.1.0 # Vérifie la dernière version stable
-  # flutter_map_geojson: ^1.0.8 # Garde-le si tu comptes l'utiliser
-  latlong2: ^0.9.1 # Vérifie la dernière version stable
-  url_launcher: ^6.0.0 # Pour ouvrir les liens web
-  # --- AJOUTE CETTE LIGNE ---
-  provider: ^6.1.2 # Ou la dernière version de pub.dev
+  http: ^1.2.1          # Pour les appels API (NYT)
+  cupertino_icons: ^1.0.6 # Icônes iOS
+  flutter_map: ^6.1.0     # Pour la carte
+  latlong2: ^0.9.1        # Requis par flutter_map
+  provider: ^6.1.2        # Pour la gestion du thème
+  url_launcher: ^6.3.0    # Pour ouvrir les liens (version plus récente)
+  shared_preferences: ^2.2.3 # INDISPENSABLE pour sauvegarder la clé API
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # --- SUPPRIME http et cupertino_icons D'ICI ---
-  # http: ^1.3.0 # Supprimé car déjà dans dependencies
-  # cupertino_icons: ^1.0.8 # Supprimé car déjà dans dependencies
-
-  flutter_lints: ^3.0.0 # Ou ^4.0.0 ou ^5.0.0 selon ta version de Flutter/Dart
+  flutter_lints: ^3.0.0 # Ou plus récent si tu utilises un SDK récent
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/ # Correct pour inclure tout le dossier assets
+    - assets/ # Pour charger ton image nature.jpg etc.
