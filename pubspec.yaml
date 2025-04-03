@@ -22,8 +22,24 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0 # Ou plus récent si tu utilises un SDK récent
+  flutter_launcher_icons: ^0.13.1 # Vérifie la dernière version sur pub.dev
 
 flutter:
   uses-material-design: true
   assets:
     - assets/ # Pour charger ton image nature.jpg etc.
+    - assets/icon/ # Assure-toi que le dossier contenant tes icônes sources est listé ici !
+
+flutter_launcher_icons:
+  # --- Pour Android ---
+  android: true # Générer les icônes Android
+  image_path: "assets/icon/Greenwatch_Logo.jpeg" # CHEMIN VERS TON IMAGE SOURCE MODIFIÉE (sans texte)
+  min_sdk_android: 21 # Minimum SDK requis pour les adaptive icons
+  # Optionnel: Pour les adaptive icons (recommandé)
+  adaptive_icon_background: "#FFFFFF" # Couleur de fond (HEX) OU chemin vers une image assets/icon/background.png
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png" # CHEMIN VERS TON IMAGE SOURCE (juste la feuille, si possible transparente)
+
+  # --- Pour iOS ---
+  ios: true # Générer les icônes iOS
+  image_path_ios: "assets/icon/Greenwatch_Logo.jpeg" # CHEMIN VERS TON IMAGE SOURCE MODIFIÉE (peut être la même)
+  remove_alpha_ios: true # Recommandé si ton icône iOS n'a pas besoin de transparence
