@@ -4,9 +4,6 @@ import "package:http/http.dart" as http;
 import 'dart:convert';
 import 'dart:math';
 
-import 'about.dart';
-import 'settings.dart';
-import 'map.dart';
 
 
 void main() {
