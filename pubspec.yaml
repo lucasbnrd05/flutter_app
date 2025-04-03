@@ -15,7 +15,7 @@ dependencies:
   flutter_map: ^6.1.0 # Vérifie la dernière version stable
   # flutter_map_geojson: ^1.0.8 # Garde-le si tu comptes l'utiliser
   latlong2: ^0.9.1 # Vérifie la dernière version stable
-
+  url_launcher: ^6.0.0 # Pour ouvrir les liens web
   # --- AJOUTE CETTE LIGNE ---
   provider: ^6.1.2 # Ou la dernière version de pub.dev
 
