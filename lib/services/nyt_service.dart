@@ -1,70 +1,72 @@
 // lib/services/nyt_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/article.dart';      // Importe le modèle Article
-import '../config/api_config.dart';  // Importe la configuration (pour la clé API)
+import '../models/article.dart';
+import 'settings_service.dart'; // Importe le nouveau service
 
 class NytApiService {
-  // L'URL de base de l'API Article Search
   static const String _baseUrl = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
 
-  // Méthode pour récupérer les 10 derniers articles sur le climat
   Future<List<Article>> fetchClimateArticles() async {
-    // Prépare les paramètres de la requête
+    // 1. Récupérer la clé API depuis les préférences
+    final String? apiKey = await SettingsService.getNytApiKey();
+
+    // 2. Vérifier si la clé existe
+    if (apiKey == null || apiKey.isEmpty) {
+      print("Clé API NYT manquante ou vide dans les paramètres.");
+      // Retourne une exception spécifique pour indiquer le problème
+      throw Exception('NYT API Key is missing. Please add it in settings.');
+    }
+
     final queryParams = {
-      'api-key': nytApiKey, // Utilise la clé API depuis api_config.dart
-      // 'fq' (filter query) pour cibler les sujets/sections liés au climat/environnement
+      'api-key': apiKey, // Utilise la clé récupérée
       'fq': 'news_desk:("Climate") OR section_name:("Climate", "Environment") OR subject:("Global Warming", "Climate Change", "Environment", "Greenhouse Gas Emissions")',
-      'sort': 'newest', // Trie par les plus récents
-      // 'fl' (field list) pour ne récupérer que les champs nécessaires
+      'sort': 'newest',
       'fl': 'headline,abstract,snippet,web_url,multimedia,pub_date',
-      // L'API utilise la pagination, la taille par défaut est souvent 10,
-      // donc on n'a pas besoin de spécifier 'page_size' explicitement pour en avoir 10.
     };
 
-    // Construit l'URI complète avec les paramètres
     final uri = Uri.parse(_baseUrl).replace(queryParameters: queryParams);
-
-    print("Appel API NYT : $uri"); // Utile pour le débogage
+    print("Appel API NYT : $uri");
 
     try {
-      // Effectue la requête GET
       final response = await http.get(uri);
 
-      // Vérifie si la requête a réussi (code 200 OK)
       if (response.statusCode == 200) {
-        // Décode la réponse JSON (qui est une chaîne de caractères) en Map Dart
         final data = json.decode(response.body);
-
-        // Vérifie la structure attendue de la réponse NYT
         if (data['status'] == 'OK' && data['response'] != null && data['response']['docs'] != null) {
-          // Extrait la liste des documents (articles)
           final List<dynamic> results = data['response']['docs'];
-
-          // Transforme chaque objet JSON de la liste en objet Article
-          // et s'assure de ne prendre que les 10 premiers (au cas où l'API en renverrait plus)
           List<Article> articles = results
               .map((jsonArticle) => Article.fromJson(jsonArticle))
-              .take(10) // Prend les 10 premiers
+              .take(10)
               .toList();
-
-          print("Articles récupérés: ${articles.length}"); // Log
+          print("Articles récupérés: ${articles.length}");
           return articles;
-
         } else {
-          // La structure de la réponse n'est pas celle attendue
           print('Erreur de structure de réponse API NYT: ${response.body}');
-          throw Exception('Format de réponse API invalide ou statut non OK.');
+          // Essayer de donner une erreur plus précise si possible (ex: clé invalide)
+          if (response.body.toLowerCase().contains("invalid api key")) {
+            throw Exception('Invalid NYT API Key.');
+          }
+          throw Exception('Invalid API response format or status not OK.');
         }
-      } else {
-        // Gère les autres codes d'erreur HTTP (ex: 401 Unauthorized, 429 Too Many Requests)
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
         print('Erreur API NYT: ${response.statusCode} - ${response.body}');
-        throw Exception('Échec du chargement des articles (Code: ${response.statusCode})');
+        throw Exception('Invalid or unauthorized NYT API Key.');
+      } else if (response.statusCode == 429) {
+        print('Erreur API NYT: ${response.statusCode} - ${response.body}');
+        throw Exception('NYT API rate limit exceeded. Try again later.');
+      }
+      else {
+        print('Erreur API NYT: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to load articles (Code: ${response.statusCode})');
       }
     } catch (e) {
-      // Gère les erreurs réseau (pas de connexion) ou de décodage JSON
       print('Erreur lors de la récupération des articles NYT: $e');
-      throw Exception('Erreur de connexion ou de traitement des données: $e');
+      // Renvoyer l'exception existante si ce n'est pas une des erreurs gérées ci-dessus
+      if (e is Exception) {
+        rethrow; // Renvoyer l'exception spécifique déjà créée
+      }
+      throw Exception('Connection or data processing error: $e');
     }
   }
 }

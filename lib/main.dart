@@ -1,20 +1,23 @@
+import 'package:flutter/gestures.dart'; // Importer pour RichText recognizer
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
-import 'package:url_launcher/url_launcher.dart'; // To open links
+import 'package:url_launcher/url_launcher.dart'; // Pour ouvrir les liens
 
-// Import local files
+// Importe les fichiers locaux du projet
 import 'themes.dart';
 import 'theme_provider.dart';
-import 'ux_unit/custom_drawer.dart'; // Make sure this path is correct
-import 'about.dart';                  // Make sure this path is correct
-import 'settings.dart';              // Make sure this path is correct
-import 'map.dart';                   // Make sure this path is correct
-import 'models/article.dart';        // Import the Article model
-import 'services/nyt_service.dart';  // Import the API service
+import 'ux_unit/custom_drawer.dart';
+import 'about.dart';
+import 'settings.dart';
+import 'map.dart';
+import 'models/article.dart';        // Modèle pour les articles
+import 'services/nyt_service.dart';  // Service pour l'API NYT
+import 'services/settings_service.dart'; // Service pour gérer les clés API
 
 void main() {
   runApp(
+    // Initialise le Provider pour le thème au-dessus de l'application
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
       child: const MyApp(),
@@ -27,17 +30,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Écoute les changements de thème via le Provider
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'GreenWatch', // App title
-      themeMode: themeProvider.themeMode,
-      theme: lightTheme, // Your light theme
-      darkTheme: darkTheme, // Your dark theme
-      home: const HomePage(),
+      title: 'GreenWatch', // Titre de l'application
+      themeMode: themeProvider.themeMode, // Mode de thème géré par le Provider
+      theme: lightTheme,                 // Thème clair défini dans themes.dart
+      darkTheme: darkTheme,               // Thème sombre défini dans themes.dart
+      home: const HomePage(),           // Page d'accueil par défaut
+      // Définition des routes nommées pour la navigation
       routes: {
-        // Your existing routes
         '/home': (context) => const HomePage(),
         '/map': (context) => const MapPage(),
         '/about': (context) => const AboutPage(),
@@ -47,7 +51,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// --- HomePage (Main Widget) ---
+// --- HomePage (Widget principal avec état) ---
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -56,7 +60,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Quotes
+  // Liste de citations environnementales
   final List<String> _quotes = [
     "🌍 \"The Earth does not belong to us, we borrow it from our children.\" – Antoine de Saint-Exupéry",
     "🌱 \"Nature always wears the colors of the spirit.\" – Ralph Waldo Emerson",
@@ -69,34 +73,63 @@ class _HomePageState extends State<HomePage> {
     "☀️ \"Keep close to Nature’s heart.\" – John Muir",
     "🌊 \"Water and air, the two essential fluids on which all life depends, have become global garbage cans.\" – Jacques-Yves Cousteau",
   ];
-  late String _randomQuote;
+  late String _randomQuote; // Pour stocker la citation affichée
 
-  // API service instance and Future for articles
+  // Service API NYT et état pour les articles
   final NytApiService _nytService = NytApiService();
-  late Future<List<Article>> _articlesFuture;
+  Future<List<Article>>? _articlesFuture; // Le Future qui contient les articles (peut être null)
+  bool _apiKeyMissing = false; // Indicateur : la clé API manque-t-elle ?
+  String? _apiError;          // Stocke un message d'erreur spécifique de l'API
 
   @override
   void initState() {
     super.initState();
-    // Select a random quote
+    // Sélectionne une citation aléatoire au démarrage
     _randomQuote = _quotes[Random().nextInt(_quotes.length)];
-    // Start fetching articles right when the widget initializes
-    _fetchArticles();
+    // Vérifie la présence de la clé API et lance le fetch si elle existe
+    _checkApiKeyAndFetch();
   }
 
-  // Method to (re)start fetching articles
-  void _fetchArticles() {
-    setState(() {
-      _articlesFuture = _nytService.fetchClimateArticles();
-    });
+  // Vérifie la clé API et lance la récupération des articles
+  Future<void> _checkApiKeyAndFetch() async {
+    final apiKey = await SettingsService.getNytApiKey();
+    if (!mounted) return; // Vérifie si le widget est toujours monté
+
+    if (apiKey == null || apiKey.isEmpty) {
+      // Si la clé manque, met à jour l'état pour afficher le message approprié
+      setState(() {
+        _apiKeyMissing = true;
+        _articlesFuture = null; // Pas de Future en cours
+        _apiError = null;       // Pas d'erreur API spécifique
+      });
+    } else {
+      // Si la clé existe, lance le fetch
+      setState(() {
+        _apiKeyMissing = false;
+        _apiError = null;
+        _articlesFuture = _nytService.fetchClimateArticles().catchError((e) {
+          // Intercepte les erreurs directement depuis le Future
+          if (!mounted) return <Article>[]; // Vérifie avant setState
+          print("Error caught by _articlesFuture: $e");
+          setState(() => _apiError = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString());
+          // Retourne une liste vide pour que FutureBuilder n'affiche pas d'erreur non gérée
+          return <Article>[];
+        });
+      });
+    }
   }
 
-  // Utility function to open a URL in the browser
+  // Méthode appelée par RefreshIndicator ou le bouton Refresh
+  Future<void> _refreshData() async {
+    await _checkApiKeyAndFetch(); // Re-vérifie la clé et relance le fetch
+  }
+
+  // Fonction utilitaire pour ouvrir une URL
   Future<void> _launchUrl(String urlString) async {
     final Uri url = Uri.parse(urlString);
     if (urlString.isEmpty) {
       print('Attempting to open an empty URL.');
-      if(mounted) { // Check if the widget is still in the tree
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Article link not available.')),
         );
@@ -104,9 +137,8 @@ class _HomePageState extends State<HomePage> {
       return;
     }
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      // Handle the error if the URL cannot be launched
       print('Could not launch URL: $urlString');
-      if(mounted) { // Check if the widget is still in the tree
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Could not open link: $urlString')),
         );
@@ -116,179 +148,263 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = Theme.of(context); // Accès au thème actuel
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("GreenWatch 🌍"), // AppBar title
+        title: const Text("GreenWatch 🌍"), // Titre de l'AppBar
         actions: [
+          // Bouton Info (About Dialog)
           IconButton(
             icon: const Icon(Icons.info_outline),
+            tooltip: 'About GreenWatch',
             onPressed: () {
               showAboutDialog(
                 context: context,
                 applicationName: "GreenWatch",
                 applicationVersion: "1.0.0",
-                applicationLegalese: "© 2025 GreenWatch", // Keep legalese as is usually
-                // You can add more info here if needed
+                applicationLegalese: "© 2025 GreenWatch",
               );
             },
           ),
-          // Add a button to refresh articles (optional)
+          // Bouton Refresh (Articles)
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh articles', // Tooltip text
-            onPressed: _fetchArticles, // Calls the method to reload
+            tooltip: 'Refresh articles',
+            onPressed: _refreshData, // Appelle la méthode pour rafraîchir
           ),
         ],
       ),
-      drawer: const CustomDrawer(), // Your custom drawer
-      body: SingleChildScrollView( // Allows scrolling if content overflows
-        padding: const EdgeInsets.only(bottom: 20.0), // Space at the bottom
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch children horizontally
-          children: [
-            // --- Image Banner ---
-            Image.asset(
-              "assets/nature.jpg", // Make sure asset path is correct
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 25),
+      drawer: const CustomDrawer(), // Le menu latéral (Drawer)
+      // Utilise RefreshIndicator pour le "tirer pour rafraîchir"
+      body: RefreshIndicator(
+        onRefresh: _refreshData, // Action à exécuter
+        child: SingleChildScrollView(
+          // Assure que le scroll est toujours possible pour activer RefreshIndicator
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 20.0), // Espace en bas
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch, // Étire les enfants horizontalement
+            children: [
+              // --- Bannière Image ---
+              Image.asset(
+                "assets/nature.jpg", // Assure-toi que le chemin est correct
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+              const SizedBox(height: 25),
 
-            // --- Quote Card ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Card(
-                elevation: 4.0, // A bit of shadow
-                shape: RoundedRectangleBorder( // Rounded corners
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    _randomQuote,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      // Color will adapt to the theme (light/dark)
+              // --- Carte Citation ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Card(
+                  elevation: 4.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      _randomQuote,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-            // --- Articles Section Title ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                "Latest Climate News (NYT)", // Section title
-                style: theme.textTheme.headlineSmall, // More prominent title style
-                textAlign: TextAlign.center,
+              // --- Titre Section Articles ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  "Latest Climate News (NYT)",
+                  style: theme.textTheme.headlineSmall,
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            // --- List of Articles (via FutureBuilder) ---
-            FutureBuilder<List<Article>>(
-              future: _articlesFuture, // The Future we are listening to
-              builder: (context, snapshot) {
-                // 1. Loading in progress
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(30.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-                // 2. Error during fetch
-                else if (snapshot.hasError) {
-                  print("FutureBuilder Error: ${snapshot.error}"); // Log for debugging
-                  print("Stack trace: ${snapshot.stackTrace}");
-                  return Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline, color: theme.colorScheme.error, size: 40),
-                          const SizedBox(height: 10),
-                          Text(
-                            "Could not load articles.", // Error message
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            // Display a simpler message to the user
-                            "Check your internet connection or try again later.\n(${snapshot.error.toString().split(':').first})", // Hint about the error
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodySmall,
-                          ),
-                          const SizedBox(height: 15),
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.refresh),
-                            label: const Text("Retry"), // Button text
-                            onPressed: _fetchArticles,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.errorContainer,
-                              foregroundColor: theme.colorScheme.onErrorContainer,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                // 3. Data received successfully
-                else if (snapshot.hasData) {
-                  final articles = snapshot.data!;
-                  // Case where the list is empty (API returned nothing)
-                  if (articles.isEmpty) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(30.0),
-                        child: Text("No recent climate articles found."), // Empty list message
-                      ),
-                    );
-                  }
-                  // Displaying articles in a column
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0), // Slight indent for the cards
-                    child: Column(
-                      // Creates an ArticleCard for each article in the list
-                      children: articles.map((article) => ArticleCard(
-                        article: article,
-                        onTap: () => _launchUrl(article.webUrl), // Action on tap
-                      )).toList(),
-                    ),
-                  );
-                }
-                // 4. Default case (should not happen if future is initialized correctly)
-                else {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(30.0),
-                      child: Text("Preparing to load..."), // Initial state text
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
+              // --- Contenu Section Articles (Dynamique) ---
+              _buildArticleContent(context), // Appelle la méthode pour construire cette partie
+
+            ],
+          ),
         ),
       ),
     );
   }
+
+  // Construit le contenu de la section articles en fonction de l'état
+  Widget _buildArticleContent(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // Cas 1: La clé API NYT est manquante
+    if (_apiKeyMissing) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+        child: Center(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.key_off, size: 40, color: theme.colorScheme.secondary),
+                  const SizedBox(height: 15),
+                  // Texte explicatif avec liens cliquables
+                  RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                          style: theme.textTheme.bodyLarge?.copyWith(color: theme.textTheme.bodyLarge?.color), // Assure la couleur du thème
+                          children: [
+                            const TextSpan(text: 'To load news, please add your NYT API key in the '),
+                            TextSpan( // Lien vers Settings
+                              text: 'Settings',
+                              style: TextStyle(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.pushNamed(context, '/settings'); // Navigue vers Settings
+                                },
+                            ),
+                            const TextSpan(text: '.\n\nYou can get one for free at the '),
+                            TextSpan( // Lien vers le portail NYT
+                              text: 'NYT Developer Portal',
+                              style: TextStyle(
+                                color: theme.colorScheme.primary,
+                                decoration: TextDecoration.underline,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  _launchUrl('https://developer.nytimes.com/'); // Ouvre le lien externe
+                                },
+                            ),
+                            const TextSpan(text: '.'),
+                          ]
+                      )
+                  ),
+                  const SizedBox(height: 20),
+                  // Bouton pour aller directement aux paramètres
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.settings),
+                    label: const Text('Go to Settings'),
+                    onPressed: () => Navigator.pushNamed(context, '/settings'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      foregroundColor: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  )
+                ]
+            )
+        ),
+      );
+    }
+    // Cas 2: Une erreur API spécifique a été détectée avant ou pendant le fetch
+    else if (_apiError != null) {
+      return Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, color: theme.colorScheme.error, size: 40),
+              const SizedBox(height: 10),
+              Text(
+                "Could not load articles.",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 5),
+              // Affiche le message d'erreur spécifique
+              Text(
+                _apiError!,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error),
+              ),
+              const SizedBox(height: 15),
+              // Bouton conditionnel vers Settings si l'erreur concerne la clé
+              if (_apiError!.toLowerCase().contains('key'))
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.settings),
+                    label: const Text('Check API Key'),
+                    onPressed: () => Navigator.pushNamed(context, '/settings'),
+                  ),
+                ),
+              // Bouton pour réessayer
+              ElevatedButton.icon(
+                icon: const Icon(Icons.refresh),
+                label: const Text("Retry"),
+                onPressed: _refreshData, // Appelle la méthode de refresh
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.errorContainer,
+                  foregroundColor: theme.colorScheme.onErrorContainer,
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    }
+    // Cas 3: Le Future a été initialisé (la clé existe), utilise FutureBuilder
+    else if (_articlesFuture != null) {
+      return FutureBuilder<List<Article>>(
+        future: _articlesFuture, // Le Future à écouter
+        builder: (context, snapshot) {
+          // État: Chargement en cours
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: Padding(padding: EdgeInsets.all(30.0), child: CircularProgressIndicator()));
+          }
+          // État: Erreur non interceptée par .catchError (devrait être rare)
+          else if (snapshot.hasError) {
+            print("FutureBuilder Error (fallback): ${snapshot.error}");
+            return Center(child: Padding(padding: const EdgeInsets.all(20), child: Text('An unexpected error occurred: ${snapshot.error}')));
+          }
+          // État: Données reçues (peut être une liste vide)
+          else if (snapshot.hasData) {
+            final articles = snapshot.data!;
+            // Gère le cas où .catchError a retourné une liste vide (l'erreur est déjà affichée par la condition _apiError != null)
+            if (articles.isEmpty && _apiError != null) {
+              return const SizedBox.shrink(); // Ne rien afficher ici, l'erreur est gérée au-dessus
+            }
+            // Gère le cas où l'API retourne une liste vide sans erreur
+            if (articles.isEmpty) {
+              return const Center(child: Padding(padding: EdgeInsets.all(30.0), child: Text("No recent climate articles found.")));
+            }
+            // Affiche la liste des articles
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Column(
+                children: articles.map((article) => ArticleCard(
+                  article: article,
+                  onTap: () => _launchUrl(article.webUrl), // Action au clic sur la carte
+                )).toList(),
+              ),
+            );
+          }
+          // État initial ou inattendu
+          else {
+            return const Center(child: Padding(padding: EdgeInsets.all(30.0), child: Text("Loading...")));
+          }
+        },
+      );
+    }
+    // Cas 4: État initial avant la fin de la vérification de la clé
+    else {
+      return const Center(child: Padding(padding: EdgeInsets.all(30.0), child: CircularProgressIndicator()));
+    }
+  }
 }
 
-// --- ArticleCard (Widget to display an article card) ---
+// --- ArticleCard (Widget pour afficher une carte d'article) ---
 class ArticleCard extends StatelessWidget {
   final Article article;
-  final VoidCallback onTap; // Function to call on tap
+  final VoidCallback onTap; // Fonction appelée au clic
 
   const ArticleCard({
     super.key,
@@ -303,17 +419,17 @@ class ArticleCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       elevation: 3.0,
-      clipBehavior: Clip.antiAlias, // So the image respects the Card's rounded corners
+      clipBehavior: Clip.antiAlias, // L'image respecte les coins arrondis
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      child: InkWell( // Makes the card tappable
+      child: InkWell( // Rend la carte cliquable
         onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Image Display ---
-            _buildImage(context), // Use a separate method for clarity
+            // Affiche l'image (si disponible)
+            _buildImage(context),
 
-            // --- Text Content (Title and Snippet) ---
+            // Contenu texte (titre et extrait)
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -324,15 +440,15 @@ class ArticleCard extends StatelessWidget {
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
-                    maxLines: 2, // Limit title to 2 lines
-                    overflow: TextOverflow.ellipsis, // Add '...' if too long
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis, // Ajoute "..." si trop long
                   ),
                   const SizedBox(height: 8),
                   Text(
                     article.snippet,
                     style: theme.textTheme.bodyMedium,
-                    maxLines: 3, // Limit snippet to 3 lines
-                    overflow: TextOverflow.ellipsis, // Add '...' if too long
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -343,28 +459,26 @@ class ArticleCard extends StatelessWidget {
     );
   }
 
-  // Private method to build the image part of the card
+  // Construit la partie image de la carte avec gestion du chargement et des erreurs
   Widget _buildImage(BuildContext context) {
-    const double imageHeight = 160.0; // Standard height for the image
+    const double imageHeight = 160.0;
     final placeholderColor = Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.3);
     final errorIconColor = Theme.of(context).colorScheme.onSecondaryContainer;
 
-    // If the image URL exists and is not empty
     if (article.imageUrl != null && article.imageUrl!.isNotEmpty) {
       return Image.network(
         article.imageUrl!,
         height: imageHeight,
-        width: double.infinity, // Takes the full width of the card
-        fit: BoxFit.cover, // Covers the available space, may crop
-        // Widget displayed while the image is loading
+        width: double.infinity,
+        fit: BoxFit.cover,
+        // Widget affiché pendant le chargement
         loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child; // Image loaded
+          if (loadingProgress == null) return child; // Image chargée
           return Container(
             height: imageHeight,
             color: placeholderColor,
             child: Center(
               child: CircularProgressIndicator(
-                // Show progress if available
                 value: loadingProgress.expectedTotalBytes != null
                     ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
                     : null,
@@ -373,7 +487,7 @@ class ArticleCard extends StatelessWidget {
             ),
           );
         },
-        // Widget displayed if the image cannot be loaded
+        // Widget affiché en cas d'erreur de chargement
         errorBuilder: (context, error, stackTrace) {
           print("Error loading image: ${article.imageUrl} -> $error");
           return Container(
@@ -383,11 +497,10 @@ class ArticleCard extends StatelessWidget {
           );
         },
       );
-    }
-    // If no image URL is provided
-    else {
+    } else {
+      // Widget affiché si aucune URL d'image n'est fournie
       return Container(
-        height: imageHeight / 1.5, // Smaller if no image
+        height: imageHeight / 1.5, // Plus petit si pas d'image
         color: placeholderColor,
         child: Center(child: Icon(Icons.image_not_supported, color: errorIconColor, size: 40)),
       );
