@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/ux_unit/custom_drawer.dart';
-import "package:http/http.dart" as http;
-import 'dart:convert';
+import 'package:provider/provider.dart'; // Import Provider
 import 'dart:math';
 
+// Importe tes nouvelles classes et thèmes
+import 'themes.dart';
+import 'theme_provider.dart';
 
+// Importe tes pages et le drawer
+import 'ux_unit/custom_drawer.dart';
+import 'about.dart'; // Assure-toi que le chemin est correct
+import 'settings.dart'; // Assure-toi que le chemin est correct
+import 'map.dart'; // Assure-toi que le chemin est correct
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    // 1. Enveloppe ton app avec ChangeNotifierProvider
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -15,15 +27,30 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 2. Écoute le provider pour récupérer le mode de thème actuel
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'GreenWatch',
-      theme: ThemeData(primarySwatch: Colors.green),
+      // 3. Utilise les thèmes et le mode définis
+      themeMode: themeProvider.themeMode, // Défini par le provider
+      theme: lightTheme,                 // Ton thème clair
+      darkTheme: darkTheme,               // Ton thème sombre
+      // theme: ThemeData(primarySwatch: Colors.green), // Supprime l'ancien thème
       home: const HomePage(),
+      // Optionnel mais recommandé : définir des routes nommées
+      routes: {
+        '/home': (context) => const HomePage(),
+        '/map': (context) => const MapPage(),
+        '/about': (context) => const AboutPage(),
+        '/settings': (context) => const SettingsPage(),
+      },
     );
   }
 }
 
+// --- HomePage reste presque identique, on va juste adapter la carte ---
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -32,7 +59,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _weather = "Loading...";
+  // Weather logic (pas touché ici)
+  // ...
+
   final List<String> _quotes = [
     "🌍 \"The Earth does not belong to us, we borrow it from our children.\" – Antoine de Saint-Exupéry",
     "🌱 \"Nature always wears the colors of the spirit.\" – Ralph Waldo Emerson",
@@ -51,19 +80,24 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
     _randomQuote = _quotes[Random().nextInt(_quotes.length)];
   }
 
   @override
   Widget build(BuildContext context) {
+    // Accéder au thème actuel pour adapter les couleurs si besoin explicitement
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("GreenWatch 🌍"),
+        // Les actions de l'AppBar utilisent automatiquement foregroundColor défini dans AppBarTheme
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () {
+              // showAboutDialog s'adapte généralement bien aux thèmes
               showAboutDialog(
                 context: context,
                 applicationName: "GreenWatch",
@@ -74,31 +108,39 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      drawer: const CustomDrawer(),
-        body: SingleChildScrollView(
+      drawer: const CustomDrawer(), // Le drawer utilisera DrawerThemeData
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset("assets/nature.jpg", height: 200, fit: BoxFit.cover),
-            const SizedBox(height: 50),
+            // L'image reste la même
+            Image.asset("assets/nature.jpg", height: 200, width: double.infinity, fit: BoxFit.cover),
+            const SizedBox(height: 30), // Un peu plus d'espace peut-être
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
+              // Utilisation de Card avec les styles du thème (CardTheme)
               child: Card(
-                color: Colors.green.shade100,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                // color: colorScheme.surfaceVariant, // Essayons une couleur sémantique
+                // elevation: theme.cardTheme.elevation ?? 2.0, // Utilise l'élévation du thème
+                // shape: theme.cardTheme.shape, // Utilise la forme du thème
+                // OU laisser vide pour utiliser directement CardTheme
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
                     _randomQuote,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                    // Utilise le style de texte du thème pour une adaptation automatique
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      // La couleur sera gérée par le thème (onSurface ou onSurfaceVariant)
+                      // color: colorScheme.onSurfaceVariant, // Forcer si besoin
+                    ),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
+            // Tu peux ajouter d'autres widgets ici, ils suivront le thème
           ],
         ),
       ),
