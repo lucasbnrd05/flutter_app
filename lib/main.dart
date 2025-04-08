@@ -60,7 +60,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Liste de citations environnementales
+  // Liste de citations environnementales (en anglais)
   final List<String> _quotes = [
     "🌍 \"The Earth does not belong to us, we borrow it from our children.\" – Antoine de Saint-Exupéry",
     "🌱 \"Nature always wears the colors of the spirit.\" – Ralph Waldo Emerson",
@@ -75,6 +75,21 @@ class _HomePageState extends State<HomePage> {
   ];
   late String _randomQuote; // Pour stocker la citation affichée
 
+  // --- NOUVEAU : Liste de Conseils Écolos (en anglais) ---
+  final List<String> _ecoTips = [
+    "💡 Reduce single-use plastics. Bring your own bags, bottles, and cups.",
+    "💡 Save water: take shorter showers, fix leaks.",
+    "💡 Sort your waste and recycle properly.",
+    "💡 Opt for public transport, cycling, or walking.",
+    "💡 Reduce meat consumption; try vegetarian meals.",
+    "💡 Turn off lights and unplug unused devices.",
+    "💡 Plant trees or support reforestation initiatives.",
+    "💡 Buy local and seasonal food to reduce food miles.",
+    "💡 Compost your organic waste.",
+    "💡 Use eco-friendly cleaning products.",
+  ];
+  late String _randomEcoTip; // Pour stocker le conseil affiché
+
   // Service API NYT et état pour les articles
   final NytApiService _nytService = NytApiService();
   Future<List<Article>>? _articlesFuture; // Le Future qui contient les articles (peut être null)
@@ -84,10 +99,25 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // Sélectionne une citation aléatoire au démarrage
+    // Sélectionne une citation et un conseil aléatoires au démarrage
     _randomQuote = _quotes[Random().nextInt(_quotes.length)];
+    _randomEcoTip = _ecoTips[Random().nextInt(_ecoTips.length)]; // NOUVEAU
     // Vérifie la présence de la clé API et lance le fetch si elle existe
     _checkApiKeyAndFetch();
+  }
+
+  // --- NOUVEAU : Fonction pour changer la citation ---
+  void _refreshQuote() {
+    setState(() {
+      _randomQuote = _quotes[Random().nextInt(_quotes.length)];
+    });
+  }
+
+  // --- NOUVEAU : Fonction pour changer le conseil ---
+  void _refreshEcoTip() {
+    setState(() {
+      _randomEcoTip = _ecoTips[Random().nextInt(_ecoTips.length)];
+    });
   }
 
   // Vérifie la clé API et lance la récupération des articles
@@ -122,6 +152,9 @@ class _HomePageState extends State<HomePage> {
   // Méthode appelée par RefreshIndicator ou le bouton Refresh
   Future<void> _refreshData() async {
     await _checkApiKeyAndFetch(); // Re-vérifie la clé et relance le fetch
+    // Optionnel : rafraîchir aussi la citation et le conseil
+    _refreshQuote();
+    _refreshEcoTip();
   }
 
   // Fonction utilitaire pour ouvrir une URL
@@ -136,11 +169,15 @@ class _HomePageState extends State<HomePage> {
       }
       return;
     }
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      print('Could not launch URL: $urlString');
-      if (mounted) {
+    try {
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        throw 'Could not launch $urlString';
+      }
+    } catch (e) {
+      print('Could not launch URL: $urlString. Error: $e');
+      if(mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open link: $urlString')),
+          SnackBar(content: Text('Could not open link: $urlString')), // Reverted to English
         );
       }
     }
@@ -157,20 +194,27 @@ class _HomePageState extends State<HomePage> {
           // Bouton Info (About Dialog)
           IconButton(
             icon: const Icon(Icons.info_outline),
-            tooltip: 'About GreenWatch',
+            tooltip: 'About GreenWatch', // English tooltip
             onPressed: () {
               showAboutDialog(
                 context: context,
                 applicationName: "GreenWatch",
-                applicationVersion: "1.0.0",
-                applicationLegalese: "© 2025 GreenWatch",
+                applicationVersion: "1.0.0", // Update if needed
+                applicationLegalese: "© 2024 GreenWatch", // Update if needed
+                children: <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.only(top: 15),
+                    // English text in About Dialog
+                    child: Text('An application to follow climate news and explore environmental data.'),
+                  )
+                ],
               );
             },
           ),
           // Bouton Refresh (Articles)
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh articles',
+            tooltip: 'Refresh articles', // English tooltip
             onPressed: _refreshData, // Appelle la méthode pour rafraîchir
           ),
         ],
@@ -188,14 +232,14 @@ class _HomePageState extends State<HomePage> {
             children: [
               // --- Bannière Image ---
               Image.asset(
-                "assets/nature.jpg", // Assure-toi que le chemin est correct
+                "assets/nature.jpg", // Assure-toi que le chemin est correct dans pubspec.yaml
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
               const SizedBox(height: 25),
 
-              // --- Carte Citation ---
+              // --- Carte Citation avec Bouton Refresh ---
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Card(
@@ -205,23 +249,114 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      _randomQuote,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontStyle: FontStyle.italic,
-                      ),
+                    child: Row( // Utilise Row pour mettre le texte et le bouton côte à côte
+                      children: [
+                        Expanded( // Pour que le texte prenne la place disponible
+                          child: Text(
+                            _randomQuote,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8), // Espace entre texte et bouton
+                        // --- NOUVEAU : Bouton Refresh Citation ---
+                        IconButton(
+                          icon: Icon(Icons.sync, color: theme.colorScheme.secondary),
+                          tooltip: 'New quote', // English tooltip
+                          onPressed: _refreshQuote,
+                          iconSize: 20.0, // Taille plus petite
+                          visualDensity: VisualDensity.compact, // Rapproche l'icône
+                          padding: EdgeInsets.zero, // Pas de padding interne
+                          constraints: const BoxConstraints(), // Retire les contraintes de taille min
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // --- NOUVEAU : Carte Conseil Écolo ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Card(
+                  elevation: 2.0, // Moins d'élévation que la citation
+                  color: theme.colorScheme.secondaryContainer.withOpacity(0.5), // Couleur de fond légère
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _randomEcoTip,
+                            textAlign: TextAlign.start, // Alignement à gauche
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSecondaryContainer,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: Icon(Icons.sync, color: theme.colorScheme.primary),
+                          tooltip: 'New tip', // English tooltip
+                          onPressed: _refreshEcoTip,
+                          iconSize: 18.0,
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 30),
 
+              // --- NOUVEAU : Section Actions Rapides ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Wrap( // Wrap permet aux boutons de passer à la ligne si l'espace manque
+                  spacing: 12.0, // Espace horizontal entre les boutons
+                  runSpacing: 8.0, // Espace vertical entre les lignes de boutons
+                  alignment: WrapAlignment.center, // Centre les boutons
+                  children: [
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.map_outlined),
+                      label: const Text("View Map"), // English label
+                      onPressed: () => Navigator.pushNamed(context, '/map'),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.volunteer_activism_outlined),
+                      label: const Text("How to Help?"), // English label
+                      onPressed: () => _launchUrl('https://www.wwf.org/get-involved'), // Example English link
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        backgroundColor: theme.colorScheme.tertiaryContainer, // Couleur différente
+                        foregroundColor: theme.colorScheme.onTertiaryContainer,
+                      ),
+                    ),
+                    // Ajoute d'autres boutons ici si nécessaire
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+
+
               // --- Titre Section Articles ---
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  "Latest Climate News (NYT)",
+                  "Latest Climate News (NYT)", // English title
                   style: theme.textTheme.headlineSmall,
                   textAlign: TextAlign.center,
                 ),
@@ -252,15 +387,15 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Icon(Icons.key_off, size: 40, color: theme.colorScheme.secondary),
                   const SizedBox(height: 15),
-                  // Texte explicatif avec liens cliquables
+                  // Texte explicatif avec liens cliquables (en anglais)
                   RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
                           style: theme.textTheme.bodyLarge?.copyWith(color: theme.textTheme.bodyLarge?.color), // Assure la couleur du thème
                           children: [
-                            const TextSpan(text: 'To load news, please add your NYT API key in the '),
+                            const TextSpan(text: 'To load news, please add your NYT API key in the '), // English
                             TextSpan( // Lien vers Settings
-                              text: 'Settings',
+                              text: 'Settings', // English
                               style: TextStyle(
                                 color: theme.colorScheme.primary,
                                 fontWeight: FontWeight.bold,
@@ -271,9 +406,9 @@ class _HomePageState extends State<HomePage> {
                                   Navigator.pushNamed(context, '/settings'); // Navigue vers Settings
                                 },
                             ),
-                            const TextSpan(text: '.\n\nYou can get one for free at the '),
+                            const TextSpan(text: '.\n\nYou can get one for free at the '), // English
                             TextSpan( // Lien vers le portail NYT
-                              text: 'NYT Developer Portal',
+                              text: 'NYT Developer Portal', // English
                               style: TextStyle(
                                 color: theme.colorScheme.primary,
                                 decoration: TextDecoration.underline,
@@ -288,10 +423,10 @@ class _HomePageState extends State<HomePage> {
                       )
                   ),
                   const SizedBox(height: 20),
-                  // Bouton pour aller directement aux paramètres
+                  // Bouton pour aller directement aux paramètres (en anglais)
                   ElevatedButton.icon(
                     icon: const Icon(Icons.settings),
-                    label: const Text('Go to Settings'),
+                    label: const Text('Go to Settings'), // English
                     onPressed: () => Navigator.pushNamed(context, '/settings'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.colorScheme.primaryContainer,
@@ -314,7 +449,7 @@ class _HomePageState extends State<HomePage> {
               Icon(Icons.error_outline, color: theme.colorScheme.error, size: 40),
               const SizedBox(height: 10),
               Text(
-                "Could not load articles.",
+                "Could not load articles.", // English
                 textAlign: TextAlign.center,
                 style: theme.textTheme.titleMedium,
               ),
@@ -326,20 +461,20 @@ class _HomePageState extends State<HomePage> {
                 style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error),
               ),
               const SizedBox(height: 15),
-              // Bouton conditionnel vers Settings si l'erreur concerne la clé
+              // Bouton conditionnel vers Settings si l'erreur concerne la clé (en anglais)
               if (_apiError!.toLowerCase().contains('key'))
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.settings),
-                    label: const Text('Check API Key'),
+                    label: const Text('Check API Key'), // English
                     onPressed: () => Navigator.pushNamed(context, '/settings'),
                   ),
                 ),
-              // Bouton pour réessayer
+              // Bouton pour réessayer (en anglais)
               ElevatedButton.icon(
                 icon: const Icon(Icons.refresh),
-                label: const Text("Retry"),
+                label: const Text("Retry"), // English
                 onPressed: _refreshData, // Appelle la méthode de refresh
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.errorContainer,
@@ -363,7 +498,7 @@ class _HomePageState extends State<HomePage> {
           // État: Erreur non interceptée par .catchError (devrait être rare)
           else if (snapshot.hasError) {
             print("FutureBuilder Error (fallback): ${snapshot.error}");
-            return Center(child: Padding(padding: const EdgeInsets.all(20), child: Text('An unexpected error occurred: ${snapshot.error}')));
+            return Center(child: Padding(padding: const EdgeInsets.all(20), child: Text('An unexpected error occurred: ${snapshot.error}'))); // English
           }
           // État: Données reçues (peut être une liste vide)
           else if (snapshot.hasData) {
@@ -372,9 +507,9 @@ class _HomePageState extends State<HomePage> {
             if (articles.isEmpty && _apiError != null) {
               return const SizedBox.shrink(); // Ne rien afficher ici, l'erreur est gérée au-dessus
             }
-            // Gère le cas où l'API retourne une liste vide sans erreur
+            // Gère le cas où l'API retourne une liste vide sans erreur (en anglais)
             if (articles.isEmpty) {
-              return const Center(child: Padding(padding: EdgeInsets.all(30.0), child: Text("No recent climate articles found.")));
+              return const Center(child: Padding(padding: EdgeInsets.all(30.0), child: Text("No recent climate articles found."))); // English
             }
             // Affiche la liste des articles
             return Padding(
@@ -387,9 +522,9 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           }
-          // État initial ou inattendu
+          // État initial ou inattendu (en anglais)
           else {
-            return const Center(child: Padding(padding: EdgeInsets.all(30.0), child: Text("Loading...")));
+            return const Center(child: Padding(padding: EdgeInsets.all(30.0), child: Text("Loading..."))); // English
           }
         },
       );
@@ -401,7 +536,9 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+
 // --- ArticleCard (Widget pour afficher une carte d'article) ---
+// Le code d'ArticleCard reste identique et était déjà en anglais ou neutre
 class ArticleCard extends StatelessWidget {
   final Article article;
   final VoidCallback onTap; // Fonction appelée au clic
@@ -466,8 +603,29 @@ class ArticleCard extends StatelessWidget {
     final errorIconColor = Theme.of(context).colorScheme.onSecondaryContainer;
 
     if (article.imageUrl != null && article.imageUrl!.isNotEmpty) {
+      // --- Correction potentielle : Ajouter le préfixe 'https://' si manquant ---
+      String imageUrl = article.imageUrl!;
+      if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+        // L'API NYT renvoie parfois des URL sans le schéma, mais souvent préfixées par www.nytimes.com
+        // Si ce n'est pas le cas, il faut ajouter https://. Ajuste si nécessaire.
+        if(imageUrl.startsWith('images.')) { // Cas spécifique NYT images
+          imageUrl = 'https://static01.nyt.com/$imageUrl';
+        } else if (imageUrl.startsWith('www.')){ // Cas spécifique NYT www
+          imageUrl = 'https://$imageUrl';
+        }
+        else {
+          // Hypothèse générique pour d'autres cas, pourrait nécessiter ajustement
+          // Ou on pourrait décider de ne pas afficher si le format est inconnu
+          // Pour l'instant, on tente d'ajouter https://
+          imageUrl = 'https://$imageUrl';
+          print("Applying generic https:// prefix to image URL: $imageUrl");
+        }
+
+      }
+      // --- Fin Correction ---
+
       return Image.network(
-        article.imageUrl!,
+        imageUrl, // Utilise l'URL potentiellement corrigée
         height: imageHeight,
         width: double.infinity,
         fit: BoxFit.cover,
@@ -489,7 +647,7 @@ class ArticleCard extends StatelessWidget {
         },
         // Widget affiché en cas d'erreur de chargement
         errorBuilder: (context, error, stackTrace) {
-          print("Error loading image: ${article.imageUrl} -> $error");
+          print("Error loading image: ${article.imageUrl} (processed as $imageUrl) -> $error");
           return Container(
             height: imageHeight,
             color: placeholderColor,
