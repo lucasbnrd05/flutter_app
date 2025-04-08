@@ -337,7 +337,7 @@ class _HomePageState extends State<HomePage> {
                     ElevatedButton.icon(
                       icon: const Icon(Icons.volunteer_activism_outlined),
                       label: const Text("How to Help?"), // English label
-                      onPressed: () => _launchUrl('https://www.wwf.org/get-involved'), // Example English link
+                      onPressed: () => _launchUrl('https://wwf.org/'), // Example English link
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
