@@ -72,6 +72,16 @@ class CustomDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.dataset),
+            title: const Text("Data"), // Already English
+            onTap: () {
+              Navigator.pop(context);
+              if (ModalRoute.of(context)?.settings.name != '/data') {
+                Navigator.pushNamed(context, '/data');
+              }
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.info),
             title: const Text("About"), // Already English
             onTap: () {
