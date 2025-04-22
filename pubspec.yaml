@@ -17,6 +17,7 @@ dependencies:
   provider: ^6.1.2        # Pour la gestion du thème
   url_launcher: ^6.3.0    # Pour ouvrir les liens (version plus récente)
   shared_preferences: ^2.2.3 # INDISPENSABLE pour sauvegarder la clé API
+  geolocator: ^10.1.0 # Ou la dernière version stable
 
 dev_dependencies:
   flutter_test:
