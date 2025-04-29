@@ -1,10 +1,5 @@
+// lib/ux_unit/custom_drawer.dart
 import 'package:flutter/material.dart';
-// Assuming your routes are set up in main.dart
-// Remove direct page imports if using named routes primarily
-// import '../about.dart';
-// import '../settings.dart';
-// import '../map.dart';
-// import '../main.dart'; // Avoid importing main.dart
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -14,10 +9,24 @@ class CustomDrawer extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Helper pour la navigation, évite de pousser si déjà sur la page
+    void navigateIfNeeded(String routeName) {
+      Navigator.pop(context); // Ferme le drawer d'abord
+      final currentRoute = ModalRoute.of(context)?.settings.name;
+      if (currentRoute != routeName) {
+        // Si on va à l'accueil, on retire toutes les autres routes
+        if (routeName == '/home') {
+          Navigator.pushNamedAndRemoveUntil(context, routeName, (route) => false);
+        } else {
+          Navigator.pushNamed(context, routeName);
+        }
+      }
+    }
+
     Widget buildDrawerHeader() {
       return DrawerHeader(
         decoration: BoxDecoration(
-          color: colorScheme.primaryContainer,
+          color: colorScheme.primaryContainer, // Utilise le schéma de couleurs
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -25,24 +34,19 @@ class CustomDrawer extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 35,
-              backgroundColor: colorScheme.onPrimaryContainer,
-              child: Icon(Icons.eco, color: colorScheme.primary, size: 35),
+              backgroundColor: colorScheme.surface, // Fond clair/sombre basé sur le thème
+              child: Icon(Icons.eco_rounded, color: colorScheme.primary, size: 40), // Icône plus visible
             ),
             const SizedBox(height: 10),
             Text(
-              "GreenWatch", // Keep as is
+              "GreenWatch",
               style: theme.textTheme.titleLarge?.copyWith(
-                color: colorScheme.onPrimaryContainer,
+                color: colorScheme.onPrimaryContainer, // Texte lisible sur le container
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 5),
-            Text(
-              "contact@greenwatch.com", // Keep as is
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onPrimaryContainer?.withOpacity(0.8),
-              ),
-            ),
+            // Optionnel: email ou slogan
+            // Text( "Your Environmental Companion", style: theme.textTheme.bodyMedium?.copyWith( color: colorScheme.onPrimaryContainer?.withOpacity(0.8), ), ),
           ],
         ),
       );
@@ -54,52 +58,30 @@ class CustomDrawer extends StatelessWidget {
         children: <Widget>[
           buildDrawerHeader(),
           ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text("Home Page"), // Already English
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-            },
+            leading: const Icon(Icons.home_outlined), // Icône outline
+            title: const Text("Home"),
+            onTap: () => navigateIfNeeded('/home'),
           ),
           ListTile(
-            leading: const Icon(Icons.map),
-            title: const Text("Map"), // Already English
-            onTap: () {
-              Navigator.pop(context);
-              if (ModalRoute.of(context)?.settings.name != '/map') {
-                Navigator.pushNamed(context, '/map');
-              }
-            },
+            leading: const Icon(Icons.map_outlined), // Icône outline
+            title: const Text("Map"),
+            onTap: () => navigateIfNeeded('/map'),
           ),
           ListTile(
-            leading: const Icon(Icons.dataset),
-            title: const Text("Data"), // Already English
-            onTap: () {
-              Navigator.pop(context);
-              if (ModalRoute.of(context)?.settings.name != '/data') {
-                Navigator.pushNamed(context, '/data');
-              }
-            },
+            leading: const Icon(Icons.add_chart_outlined), // Icône outline
+            title: const Text("Report Data"), // Nom clair
+            onTap: () => navigateIfNeeded('/data'),
           ),
           ListTile(
-            leading: const Icon(Icons.info),
-            title: const Text("About"), // Already English
-            onTap: () {
-              Navigator.pop(context);
-              if (ModalRoute.of(context)?.settings.name != '/about') {
-                Navigator.pushNamed(context, '/about');
-              }
-            },
+            leading: const Icon(Icons.info_outline), // Icône outline
+            title: const Text("About"),
+            onTap: () => navigateIfNeeded('/about'),
           ),
+          const Divider(), // Séparateur visuel
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text("Settings"), // Already English
-            onTap: () {
-              Navigator.pop(context);
-              if (ModalRoute.of(context)?.settings.name != '/settings') {
-                Navigator.pushNamed(context, '/settings');
-              }
-            },
+            leading: const Icon(Icons.settings_outlined), // Icône outline
+            title: const Text("Settings"),
+            onTap: () => navigateIfNeeded('/settings'),
           ),
         ],
       ),
