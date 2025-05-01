@@ -25,12 +25,15 @@ class SettingsService {
     final prefs = await SharedPreferences.getInstance();
     final userKey = _getUserSpecificKey(_nytApiKeyPrefix);
     if (userKey == null) {
-      print('[SettingsService getNytApiKey] Cannot get key: No logged-in user.');
+      print(
+          '[SettingsService getNytApiKey] Cannot get key: No logged-in user.');
       return null;
     }
-    print('[SettingsService getNytApiKey] ====> Attempting to get String for key: $userKey'); // LOG AJOUTÉ
+    print(
+        '[SettingsService getNytApiKey] ====> Attempting to get String for key: $userKey'); // LOG AJOUTÉ
     final key = prefs.getString(userKey);
-    print('[SettingsService getNytApiKey] <==== Retrieved value for key $userKey: ${key ?? "null"}'); // LOG AJOUTÉ (modifié)
+    print(
+        '[SettingsService getNytApiKey] <==== Retrieved value for key $userKey: ${key ?? "null"}'); // LOG AJOUTÉ (modifié)
     return key;
   }
 
@@ -38,20 +41,26 @@ class SettingsService {
     final prefs = await SharedPreferences.getInstance();
     final userKey = _getUserSpecificKey(_nytApiKeyPrefix);
     if (userKey == null) {
-      print('[SettingsService saveNytApiKey] Cannot save key: No logged-in user.');
+      print(
+          '[SettingsService saveNytApiKey] Cannot save key: No logged-in user.');
       return;
     }
     final trimmedKey = key.trim();
-    print('[SettingsService saveNytApiKey] Attempting action for userKey $userKey with value: "$trimmedKey"'); // LOG AJOUTÉ
+    print(
+        '[SettingsService saveNytApiKey] Attempting action for userKey $userKey with value: "$trimmedKey"'); // LOG AJOUTÉ
 
     if (trimmedKey.isNotEmpty) {
-      print('[SettingsService saveNytApiKey] ====> Setting String for key: $userKey'); // LOG AJOUTÉ
+      print(
+          '[SettingsService saveNytApiKey] ====> Setting String for key: $userKey'); // LOG AJOUTÉ
       await prefs.setString(userKey, trimmedKey);
-      print('[SettingsService saveNytApiKey] <==== SetString successful.'); // LOG AJOUTÉ
+      print(
+          '[SettingsService saveNytApiKey] <==== SetString successful.'); // LOG AJOUTÉ
     } else {
-      print('[SettingsService saveNytApiKey] ====> Removing key: $userKey (due to empty input)'); // LOG AJOUTÉ
+      print(
+          '[SettingsService saveNytApiKey] ====> Removing key: $userKey (due to empty input)'); // LOG AJOUTÉ
       final bool removed = await prefs.remove(userKey);
-      print('[SettingsService saveNytApiKey] <==== Remove action result: $removed'); // LOG AJOUTÉ
+      print(
+          '[SettingsService saveNytApiKey] <==== Remove action result: $removed'); // LOG AJOUTÉ
     }
   }
 
@@ -59,12 +68,15 @@ class SettingsService {
     final prefs = await SharedPreferences.getInstance();
     final userKey = _getUserSpecificKey(_openAqApiKeyPrefix);
     if (userKey == null) {
-      print('[SettingsService getOpenAqApiKey] Cannot get key: No logged-in user.');
+      print(
+          '[SettingsService getOpenAqApiKey] Cannot get key: No logged-in user.');
       return null;
     }
-    print('[SettingsService getOpenAqApiKey] ====> Attempting to get String for key: $userKey'); // LOG AJOUTÉ
+    print(
+        '[SettingsService getOpenAqApiKey] ====> Attempting to get String for key: $userKey'); // LOG AJOUTÉ
     final key = prefs.getString(userKey);
-    print('[SettingsService getOpenAqApiKey] <==== Retrieved value for key $userKey: ${key ?? "null"}'); // LOG AJOUTÉ (modifié)
+    print(
+        '[SettingsService getOpenAqApiKey] <==== Retrieved value for key $userKey: ${key ?? "null"}'); // LOG AJOUTÉ (modifié)
     return key;
   }
 
@@ -72,36 +84,45 @@ class SettingsService {
     final prefs = await SharedPreferences.getInstance();
     final userKey = _getUserSpecificKey(_openAqApiKeyPrefix);
     if (userKey == null) {
-      print('[SettingsService saveOpenAqApiKey] Cannot save key: No logged-in user.');
+      print(
+          '[SettingsService saveOpenAqApiKey] Cannot save key: No logged-in user.');
       return;
     }
     final trimmedKey = key.trim();
-    print('[SettingsService saveOpenAqApiKey] Attempting action for userKey $userKey with value: "$trimmedKey"'); // LOG AJOUTÉ
+    print(
+        '[SettingsService saveOpenAqApiKey] Attempting action for userKey $userKey with value: "$trimmedKey"'); // LOG AJOUTÉ
 
     if (trimmedKey.isNotEmpty) {
-      print('[SettingsService saveOpenAqApiKey] ====> Setting String for key: $userKey'); // LOG AJOUTÉ
+      print(
+          '[SettingsService saveOpenAqApiKey] ====> Setting String for key: $userKey'); // LOG AJOUTÉ
       await prefs.setString(userKey, trimmedKey);
-      print('[SettingsService saveOpenAqApiKey] <==== SetString successful.'); // LOG AJOUTÉ
+      print(
+          '[SettingsService saveOpenAqApiKey] <==== SetString successful.'); // LOG AJOUTÉ
     } else {
-      print('[SettingsService saveOpenAqApiKey] ====> Removing key: $userKey (due to empty input)'); // LOG AJOUTÉ
+      print(
+          '[SettingsService saveOpenAqApiKey] ====> Removing key: $userKey (due to empty input)'); // LOG AJOUTÉ
       final bool removed = await prefs.remove(userKey);
-      print('[SettingsService saveOpenAqApiKey] <==== Remove action result: $removed'); // LOG AJOUTÉ
+      print(
+          '[SettingsService saveOpenAqApiKey] <==== Remove action result: $removed'); // LOG AJOUTÉ
     }
   }
 
   static Future<void> clearUserSettings(String userId) async {
     if (userId.isEmpty) {
-      print('[SettingsService clearUserSettings] Cannot clear settings: Invalid userId provided.');
+      print(
+          '[SettingsService clearUserSettings] Cannot clear settings: Invalid userId provided.');
       return;
     }
     final prefs = await SharedPreferences.getInstance();
     final nytUserKey = '$_nytApiKeyPrefix$userId';
     final openAqUserKey = '$_openAqApiKeyPrefix$userId';
-    print('[SettingsService clearUserSettings] ====> Attempting to remove keys: $nytUserKey, $openAqUserKey'); // LOG AJOUTÉ
+    print(
+        '[SettingsService clearUserSettings] ====> Attempting to remove keys: $nytUserKey, $openAqUserKey'); // LOG AJOUTÉ
     await Future.wait([
       prefs.remove(nytUserKey),
       prefs.remove(openAqUserKey),
     ]);
-    print('[SettingsService clearUserSettings] <==== Finished removing keys for user $userId.'); // LOG AJOUTÉ
+    print(
+        '[SettingsService clearUserSettings] <==== Finished removing keys for user $userId.'); // LOG AJOUTÉ
   }
 }

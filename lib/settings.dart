@@ -43,7 +43,7 @@ class _SettingsPageState extends State<SettingsPage> {
       } else {
         print("[SettingsPage initState] No logged in user initially.");
         // Assure que les indicateurs de chargement sont à false
-        if(mounted){
+        if (mounted) {
           setState(() {
             _isLoadingNytKey = false;
             _isLoadingOpenAqKey = false;
@@ -60,7 +60,8 @@ class _SettingsPageState extends State<SettingsPage> {
     super.didChangeDependencies();
     // On recharge les clés à chaque changement d'état d'authentification
     // fourni par le Provider.
-    print("[SettingsPage didChangeDependencies] Auth state might have changed. Reloading keys.");
+    print(
+        "[SettingsPage didChangeDependencies] Auth state might have changed. Reloading keys.");
     _loadApiKeys();
   }
 
@@ -72,7 +73,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
     // Si pas d'utilisateur valide, nettoie et arrête le chargement
     if (!shouldLoad) {
-      print("[SettingsPage _loadApiKeys] No logged-in user, clearing fields and stopping load.");
+      print(
+          "[SettingsPage _loadApiKeys] No logged-in user, clearing fields and stopping load.");
       if (mounted) {
         setState(() {
           _currentNytApiKey = null;
@@ -88,7 +90,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
     // Si utilisateur valide, lance le chargement
     if (!mounted) return;
-    print("[SettingsPage _loadApiKeys] User is logged in (${user?.uid}). Loading keys.");
+    print(
+        "[SettingsPage _loadApiKeys] User is logged in (${user?.uid}). Loading keys.");
     setState(() {
       _isLoadingNytKey = true;
       _isLoadingOpenAqKey = true;
@@ -105,7 +108,8 @@ class _SettingsPageState extends State<SettingsPage> {
       // (ou au moins toujours connecté) après l'attente
       final latestUser = Provider.of<User?>(context, listen: false);
       if (!mounted || latestUser?.uid != user?.uid) {
-        print("[SettingsPage _loadApiKeys] User changed during loading or widget unmounted. Aborting state update.");
+        print(
+            "[SettingsPage _loadApiKeys] User changed during loading or widget unmounted. Aborting state update.");
         return;
       }
 
@@ -114,12 +118,14 @@ class _SettingsPageState extends State<SettingsPage> {
       _currentOpenAqApiKey = results[1];
       _nytApiKeyController.text = _currentNytApiKey ?? '';
       _openAqApiKeyController.text = _currentOpenAqApiKey ?? '';
-      print("[SettingsPage _loadApiKeys] Keys loaded: NYT=${_currentNytApiKey!=null}, OpenAQ=${_currentOpenAqApiKey!=null}");
-
+      print(
+          "[SettingsPage _loadApiKeys] Keys loaded: NYT=${_currentNytApiKey != null}, OpenAQ=${_currentOpenAqApiKey != null}");
     } catch (e) {
       print('[ERROR SettingsPage] Error loading API keys: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text('Error loading API Keys: $e')), );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading API Keys: $e')),
+        );
       }
     } finally {
       // Arrête le chargement si toujours monté
@@ -133,11 +139,77 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   // --- Les méthodes save/clear/launch restent identiques ---
-  Future<void> _saveNytApiKey() async { final keyToSave = _nytApiKeyController.text.trim(); try { await SettingsService.saveNytApiKey(keyToSave); if (mounted) { setState(() => _currentNytApiKey = keyToSave.isNotEmpty ? keyToSave : null); ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(keyToSave.isNotEmpty ? 'NYT API Key saved!' : 'NYT API Key cleared.'), backgroundColor: keyToSave.isNotEmpty ? Colors.green : Colors.orange)); FocusScope.of(context).unfocus(); } } catch (e) { print('[ERROR SettingsPage] NYT SAVE failed: $e'); if(mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error saving NYT Key: $e'))); } }
-  Future<void> _clearNytApiKey() async { _nytApiKeyController.clear(); await _saveNytApiKey(); }
-  Future<void> _saveOpenAqApiKey() async { final keyToSave = _openAqApiKeyController.text.trim(); try { await SettingsService.saveOpenAqApiKey(keyToSave); if (mounted) { setState(() => _currentOpenAqApiKey = keyToSave.isNotEmpty ? keyToSave : null); ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(keyToSave.isNotEmpty ? 'OpenAQ API Key saved!' : 'OpenAQ API Key cleared.'), backgroundColor: keyToSave.isNotEmpty ? Colors.green : Colors.orange)); FocusScope.of(context).unfocus(); } } catch (e) { print('[ERROR SettingsPage] OpenAQ SAVE failed: $e'); if(mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error saving OpenAQ Key: $e'))); } }
-  Future<void> _clearOpenAqApiKey() async { _openAqApiKeyController.clear(); await _saveOpenAqApiKey(); }
-  Future<void> _launchUrl(String urlString) async { final Uri url = Uri.parse(urlString); try { if (!await launchUrl(url, mode: LaunchMode.externalApplication)) { throw 'Could not launch $urlString'; } } catch (e) { print('[ERROR SettingsPage] _launchUrl Error: $e'); if(mounted) { ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text('Could not open link: $urlString')), ); } } }
+  Future<void> _saveNytApiKey() async {
+    final keyToSave = _nytApiKeyController.text.trim();
+    try {
+      await SettingsService.saveNytApiKey(keyToSave);
+      if (mounted) {
+        setState(
+            () => _currentNytApiKey = keyToSave.isNotEmpty ? keyToSave : null);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(keyToSave.isNotEmpty
+                ? 'NYT API Key saved!'
+                : 'NYT API Key cleared.'),
+            backgroundColor:
+                keyToSave.isNotEmpty ? Colors.green : Colors.orange));
+        FocusScope.of(context).unfocus();
+      }
+    } catch (e) {
+      print('[ERROR SettingsPage] NYT SAVE failed: $e');
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error saving NYT Key: $e')));
+    }
+  }
+
+  Future<void> _clearNytApiKey() async {
+    _nytApiKeyController.clear();
+    await _saveNytApiKey();
+  }
+
+  Future<void> _saveOpenAqApiKey() async {
+    final keyToSave = _openAqApiKeyController.text.trim();
+    try {
+      await SettingsService.saveOpenAqApiKey(keyToSave);
+      if (mounted) {
+        setState(() =>
+            _currentOpenAqApiKey = keyToSave.isNotEmpty ? keyToSave : null);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(keyToSave.isNotEmpty
+                ? 'OpenAQ API Key saved!'
+                : 'OpenAQ API Key cleared.'),
+            backgroundColor:
+                keyToSave.isNotEmpty ? Colors.green : Colors.orange));
+        FocusScope.of(context).unfocus();
+      }
+    } catch (e) {
+      print('[ERROR SettingsPage] OpenAQ SAVE failed: $e');
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving OpenAQ Key: $e')));
+    }
+  }
+
+  Future<void> _clearOpenAqApiKey() async {
+    _openAqApiKeyController.clear();
+    await _saveOpenAqApiKey();
+  }
+
+  Future<void> _launchUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    try {
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        throw 'Could not launch $urlString';
+      }
+    } catch (e) {
+      print('[ERROR SettingsPage] _launchUrl Error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open link: $urlString')),
+        );
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -145,7 +217,6 @@ class _SettingsPageState extends State<SettingsPage> {
     _openAqApiKeyController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -166,38 +237,183 @@ class _SettingsPageState extends State<SettingsPage> {
 
     // Affiche les paramètres si connecté
     return Scaffold(
-      appBar: AppBar( title: const Text("Settings"), ),
+      appBar: AppBar(
+        title: const Text("Settings"),
+      ),
       drawer: const CustomDrawer(),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           // Section Thème
-          Text('Application Theme', style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.primary)),
-          RadioListTile<ThemeMode>(title: const Text('Light'), value: ThemeMode.light, groupValue: themeProvider.themeMode, onChanged: (v) => v!=null ? themeProvider.setThemeMode(v) : null, secondary: Icon(Icons.wb_sunny, color: theme.colorScheme.primary)),
-          RadioListTile<ThemeMode>(title: const Text('Dark'), value: ThemeMode.dark, groupValue: themeProvider.themeMode, onChanged: (v) => v!=null ? themeProvider.setThemeMode(v) : null, secondary: Icon(Icons.nightlight_round, color: theme.colorScheme.primary)),
-          RadioListTile<ThemeMode>(title: const Text('System'), subtitle: const Text('Follows phone settings'), value: ThemeMode.system, groupValue: themeProvider.themeMode, onChanged: (v) => v!=null ? themeProvider.setThemeMode(v) : null, secondary: Icon(Icons.settings_brightness, color: theme.colorScheme.primary)),
+          Text('Application Theme',
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(color: theme.colorScheme.primary)),
+          RadioListTile<ThemeMode>(
+              title: const Text('Light'),
+              value: ThemeMode.light,
+              groupValue: themeProvider.themeMode,
+              onChanged: (v) =>
+                  v != null ? themeProvider.setThemeMode(v) : null,
+              secondary:
+                  Icon(Icons.wb_sunny, color: theme.colorScheme.primary)),
+          RadioListTile<ThemeMode>(
+              title: const Text('Dark'),
+              value: ThemeMode.dark,
+              groupValue: themeProvider.themeMode,
+              onChanged: (v) =>
+                  v != null ? themeProvider.setThemeMode(v) : null,
+              secondary: Icon(Icons.nightlight_round,
+                  color: theme.colorScheme.primary)),
+          RadioListTile<ThemeMode>(
+              title: const Text('System'),
+              subtitle: const Text('Follows phone settings'),
+              value: ThemeMode.system,
+              groupValue: themeProvider.themeMode,
+              onChanged: (v) =>
+                  v != null ? themeProvider.setThemeMode(v) : null,
+              secondary: Icon(Icons.settings_brightness,
+                  color: theme.colorScheme.primary)),
           const Divider(height: 32),
 
           // Section API Keys
-          Text('API Keys & Integrations', style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.primary)),
+          Text('API Keys & Integrations',
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(color: theme.colorScheme.primary)),
           const SizedBox(height: 8),
-          Text('(Keys are saved for your account: ${user?.email ?? user?.uid ?? "Unknown"})', style: theme.textTheme.bodySmall),
+          Text(
+              '(Keys are saved for your account: ${user?.email ?? user?.uid ?? "Unknown"})',
+              style: theme.textTheme.bodySmall),
           const SizedBox(height: 12),
           Text('New York Times (News)', style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
-          RichText( text: TextSpan( style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodyMedium?.color), children: [ const TextSpan(text: 'Get your free API key at the '), TextSpan( text: 'NYT Developer Portal', style: TextStyle(color: theme.colorScheme.primary, decoration: TextDecoration.underline), recognizer: TapGestureRecognizer()..onTap = () {_launchUrl('https://developer.nytimes.com/');}, ), const TextSpan(text: '.'), ] ), ),
+          RichText(
+            text: TextSpan(
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.textTheme.bodyMedium?.color),
+                children: [
+                  const TextSpan(text: 'Get your free API key at the '),
+                  TextSpan(
+                    text: 'NYT Developer Portal',
+                    style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        decoration: TextDecoration.underline),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        _launchUrl('https://developer.nytimes.com/');
+                      },
+                  ),
+                  const TextSpan(text: '.'),
+                ]),
+          ),
           const SizedBox(height: 10),
-          TextField( controller: _nytApiKeyController, obscureText: true, decoration: InputDecoration( labelText: 'NYT API Key', hintText: 'Paste your NYT key here', border: const OutlineInputBorder(), prefixIcon: _isLoadingNytKey ? const Padding(padding: EdgeInsets.all(12.0), child: SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2))) : const Icon(Icons.key), suffixIcon: !_isLoadingNytKey && _nytApiKeyController.text.isNotEmpty ? IconButton(icon: const Icon(Icons.clear), tooltip: 'Clear NYT Key', onPressed: _clearNytApiKey) : null, ), onChanged: (_) => setState(() {}), onSubmitted: (_) => _saveNytApiKey(), ),
+          TextField(
+            controller: _nytApiKeyController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'NYT API Key',
+              hintText: 'Paste your NYT key here',
+              border: const OutlineInputBorder(),
+              prefixIcon: _isLoadingNytKey
+                  ? const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: SizedBox(
+                          width: 10,
+                          height: 10,
+                          child: CircularProgressIndicator(strokeWidth: 2)))
+                  : const Icon(Icons.key),
+              suffixIcon:
+                  !_isLoadingNytKey && _nytApiKeyController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          tooltip: 'Clear NYT Key',
+                          onPressed: _clearNytApiKey)
+                      : null,
+            ),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) => _saveNytApiKey(),
+          ),
           const SizedBox(height: 5),
-          Row( mainAxisAlignment: MainAxisAlignment.end, children: [ TextButton(onPressed: _clearNytApiKey, child: const Text('Reset'), style: TextButton.styleFrom(foregroundColor: theme.colorScheme.error)), const SizedBox(width: 8), ElevatedButton.icon(icon: const Icon(Icons.save), label: const Text('Save NYT Key'), onPressed: _saveNytApiKey, style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary, foregroundColor: theme.colorScheme.onPrimary)), ]),
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            TextButton(
+                onPressed: _clearNytApiKey,
+                child: const Text('Reset'),
+                style: TextButton.styleFrom(
+                    foregroundColor: theme.colorScheme.error)),
+            const SizedBox(width: 8),
+            ElevatedButton.icon(
+                icon: const Icon(Icons.save),
+                label: const Text('Save NYT Key'),
+                onPressed: _saveNytApiKey,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary)),
+          ]),
           const SizedBox(height: 24),
           Text('OpenAQ (Air Quality)', style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
-          RichText( text: TextSpan( style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodyMedium?.color), children: [ const TextSpan(text: 'Get your free API key at the '), TextSpan( text: 'OpenAQ Platform', style: TextStyle(color: theme.colorScheme.primary, decoration: TextDecoration.underline), recognizer: TapGestureRecognizer()..onTap = () {_launchUrl('https://openaq.org/');}, ), const TextSpan(text: '. Required for air quality map markers.'), ] ), ),
+          RichText(
+            text: TextSpan(
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.textTheme.bodyMedium?.color),
+                children: [
+                  const TextSpan(text: 'Get your free API key at the '),
+                  TextSpan(
+                    text: 'OpenAQ Platform',
+                    style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        decoration: TextDecoration.underline),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        _launchUrl('https://openaq.org/');
+                      },
+                  ),
+                  const TextSpan(
+                      text: '. Required for air quality map markers.'),
+                ]),
+          ),
           const SizedBox(height: 10),
-          TextField( controller: _openAqApiKeyController, obscureText: true, decoration: InputDecoration( labelText: 'OpenAQ API Key', hintText: 'Paste your OpenAQ key here', border: const OutlineInputBorder(), prefixIcon: _isLoadingOpenAqKey ? const Padding(padding: EdgeInsets.all(12.0), child: SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2))) : const Icon(Icons.air), suffixIcon: !_isLoadingOpenAqKey && _openAqApiKeyController.text.isNotEmpty ? IconButton(icon: const Icon(Icons.clear), tooltip: 'Clear OpenAQ Key', onPressed: _clearOpenAqApiKey) : null, ), onChanged: (_) => setState(() {}), onSubmitted: (_) => _saveOpenAqApiKey(), ),
+          TextField(
+            controller: _openAqApiKeyController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'OpenAQ API Key',
+              hintText: 'Paste your OpenAQ key here',
+              border: const OutlineInputBorder(),
+              prefixIcon: _isLoadingOpenAqKey
+                  ? const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: SizedBox(
+                          width: 10,
+                          height: 10,
+                          child: CircularProgressIndicator(strokeWidth: 2)))
+                  : const Icon(Icons.air),
+              suffixIcon: !_isLoadingOpenAqKey &&
+                      _openAqApiKeyController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      tooltip: 'Clear OpenAQ Key',
+                      onPressed: _clearOpenAqApiKey)
+                  : null,
+            ),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) => _saveOpenAqApiKey(),
+          ),
           const SizedBox(height: 5),
-          Row( mainAxisAlignment: MainAxisAlignment.end, children: [ TextButton(onPressed: _clearOpenAqApiKey, child: const Text('Reset'), style: TextButton.styleFrom(foregroundColor: theme.colorScheme.error)), const SizedBox(width: 8), ElevatedButton.icon(icon: const Icon(Icons.save), label: const Text('Save OpenAQ Key'), onPressed: _saveOpenAqApiKey, style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary, foregroundColor: theme.colorScheme.onPrimary)), ]),
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            TextButton(
+                onPressed: _clearOpenAqApiKey,
+                child: const Text('Reset'),
+                style: TextButton.styleFrom(
+                    foregroundColor: theme.colorScheme.error)),
+            const SizedBox(width: 8),
+            ElevatedButton.icon(
+                icon: const Icon(Icons.save),
+                label: const Text('Save OpenAQ Key'),
+                onPressed: _saveOpenAqApiKey,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary)),
+          ]),
         ],
       ),
     );

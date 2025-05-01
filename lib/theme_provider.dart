@@ -19,7 +19,8 @@ class ThemeProvider extends ChangeNotifier {
 
   bool get isDarkMode {
     if (_themeMode == ThemeMode.system) {
-      final Brightness platformBrightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+      final Brightness platformBrightness =
+          SchedulerBinding.instance.platformDispatcher.platformBrightness;
       return platformBrightness == Brightness.dark;
     } else {
       return _themeMode == ThemeMode.dark;
@@ -27,7 +28,8 @@ class ThemeProvider extends ChangeNotifier {
   }
 
   // --- Méthode pour changer ET SAUVEGARDER le thème ---
-  Future<void> setThemeMode(ThemeMode mode) async { // <-- Rendre la méthode async
+  Future<void> setThemeMode(ThemeMode mode) async {
+    // <-- Rendre la méthode async
     if (_themeMode != mode) {
       _themeMode = mode;
       // Notifie les listeners D'ABORD pour une mise à jour rapide de l'UI
@@ -50,7 +52,8 @@ class ThemeProvider extends ChangeNotifier {
             break;
         }
         await prefs.setString(_themePersistenceKey, themeString);
-        print('[ThemeProvider] Thème sauvegardé: $themeString'); // Log pour débogage
+        print(
+            '[ThemeProvider] Thème sauvegardé: $themeString'); // Log pour débogage
       } catch (e) {
         // Gérer l'erreur si la sauvegarde échoue (optionnel)
         print('[ThemeProvider] Erreur lors de la sauvegarde du thème: $e');
@@ -64,7 +67,8 @@ class ThemeProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final String? savedTheme = prefs.getString(_themePersistenceKey);
-      print('[ThemeProvider] Thème chargé depuis Prefs: ${savedTheme ?? "aucun (défaut système)"}'); // Log
+      print(
+          '[ThemeProvider] Thème chargé depuis Prefs: ${savedTheme ?? "aucun (défaut système)"}'); // Log
 
       switch (savedTheme) {
         case 'light':

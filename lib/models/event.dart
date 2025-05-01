@@ -6,7 +6,7 @@ class Event {
   final double latitude;
   final double longitude;
   final String description; // Champ texte pour la position/description
-  final String timestamp;   // Stocké comme String ISO 8601 UTC
+  final String timestamp; // Stocké comme String ISO 8601 UTC
 
   Event({
     this.id, // Optionnel à la création
@@ -40,7 +40,8 @@ class Event {
       latitude: map['latitude'] as double? ?? 0.0,
       longitude: map['longitude'] as double? ?? 0.0,
       description: map['description'] as String? ?? 'No description',
-      timestamp: map['timestamp'] as String? ?? DateTime.now().toUtc().toIso8601String(),
+      timestamp: map['timestamp'] as String? ??
+          DateTime.now().toUtc().toIso8601String(),
     );
   }
 

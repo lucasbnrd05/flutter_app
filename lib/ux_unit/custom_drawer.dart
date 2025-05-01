@@ -48,7 +48,8 @@ class CustomDrawer extends StatelessWidget {
         // Utilise le scaffoldMessenger capturé
         if (scaffoldMessenger.mounted) {
           scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text('Error signing out. Please try again.')),
+            const SnackBar(
+                content: Text('Error signing out. Please try again.')),
           );
         }
       }
@@ -68,7 +69,9 @@ class CustomDrawer extends StatelessWidget {
               radius: 35,
               backgroundColor: colorScheme.surface,
               child: Icon(
-                  isLoggedIn ? Icons.person_outline : Icons.eco_rounded, // Icone basée sur isLoggedIn
+                  isLoggedIn
+                      ? Icons.person_outline
+                      : Icons.eco_rounded, // Icone basée sur isLoggedIn
                   color: colorScheme.primary,
                   size: 40),
             ),
@@ -85,10 +88,14 @@ class CustomDrawer extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
-                  user?.displayName ?? user?.email ?? (user?.isAnonymous == true ? "Guest User" : "Connected"),
+                  user?.displayName ??
+                      user?.email ??
+                      (user?.isAnonymous == true ? "Guest User" : "Connected"),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onPrimaryContainer?.withOpacity(0.8),
-                    fontStyle: user?.isAnonymous == true ? FontStyle.italic : FontStyle.normal,
+                    fontStyle: user?.isAnonymous == true
+                        ? FontStyle.italic
+                        : FontStyle.normal,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -116,7 +123,8 @@ class CustomDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.add_chart_outlined),
             title: const Text("Report Data"),
-            onTap: () => navigateIfNeeded('/data'), // La page cible gère le blocage
+            onTap: () =>
+                navigateIfNeeded('/data'), // La page cible gère le blocage
             enabled: true, // Reste actif visuellement
           ),
           ListTile(
@@ -128,7 +136,8 @@ class CustomDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.settings_outlined),
             title: const Text("Settings"),
-            onTap: () => navigateIfNeeded('/settings'), // La page cible gère le blocage
+            onTap: () =>
+                navigateIfNeeded('/settings'), // La page cible gère le blocage
             enabled: true, // Reste actif visuellement
           ),
           const Divider(),

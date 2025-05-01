@@ -10,51 +10,40 @@ import '../models/event.dart'; // Importe notre modèle Event
 
 class DatabaseHelper {
   // --- Singleton Pattern ---
-  // Rend cette classe un singleton pour qu'il n'y ait qu'une seule instance
-  // de la connexion à la base de données dans toute l'application.
-  DatabaseHelper._privateConstructor(); // Constructeur privé
-  static final DatabaseHelper instance = DatabaseHelper._privateConstructor(); // Instance unique
-
-  // Référence privée à la base de données (peut être null si pas initialisée)
+  DatabaseHelper._privateConstructor();
+  static final DatabaseHelper instance =
+  DatabaseHelper._privateConstructor();
   static Database? _database;
 
-  // Getter pour la base de données. Initialise si elle n'existe pas.
   Future<Database> get database async {
-    if (_database != null) return _database!; // Si déjà initialisée, la retourne
-    // Sinon, initialise la base de données
+    if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
-  // --- Initialisation de la Base de Données ---
+  // --- Initialisation ---
   Future<Database> _initDatabase() async {
-    // 1. Obtenir le chemin du répertoire où stocker la BDD
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    // 2. Créer le chemin complet vers le fichier de la BDD
-    //    Utilise join du package 'path' pour créer un chemin multiplateforme correct
     String path = join(documentsDirectory.path, 'events.db');
-    print("[DatabaseHelper] Database path: $path"); // Log du chemin
-
-    // 3. Ouvrir la base de données à ce chemin
+    print("[DatabaseHelper] Database path: $path");
     return await openDatabase(
       path,
-      version: 1, // Version de la BDD (pour les migrations futures)
-      onCreate: _onCreate, // Fonction à exécuter lors de la création initiale
+      version: 1,
+      onCreate: _onCreate,
     );
   }
 
-  // --- Création de la Table (onCreate) ---
-  // Cette fonction est appelée seulement la première fois que la BDD est créée.
+  // --- Création Table ---
   Future _onCreate(Database db, int version) async {
     print("[DatabaseHelper] Creating 'events' table...");
     await db.execute('''
       CREATE TABLE events (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, -- Clé primaire auto-générée
-        type TEXT NOT NULL,                   -- Type d'événement (non null)
-        latitude REAL NOT NULL,               -- Latitude (nombre réel non null)
-        longitude REAL NOT NULL,              -- Longitude (nombre réel non null)
-        description TEXT NOT NULL,            -- Description/Position texte (non null)
-        timestamp TEXT NOT NULL               -- Timestamp ISO 8601 UTC (non null)
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        description TEXT NOT NULL,
+        timestamp TEXT NOT NULL
       )
       ''');
     print("[DatabaseHelper] 'events' table created.");
@@ -62,31 +51,25 @@ class DatabaseHelper {
 
   // --- Opérations CRUD ---
 
-  // 1. CREATE (Insérer un événement)
+  // CREATE
   Future<int> insertEvent(Event event) async {
     Database db = await instance.database;
-    // La méthode insert retourne l'ID de la nouvelle ligne insérée.
     print("[DatabaseHelper] Inserting event: ${event.toMap()}");
     int id = await db.insert(
-      'events',       // Nom de la table
-      event.toMap(),  // Données de l'événement converties en Map
-      conflictAlgorithm: ConflictAlgorithm.replace, // Si un conflit (ex: même ID), remplace la ligne existante (moins probable avec AUTOINCREMENT)
+      'events',
+      event.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
     print("[DatabaseHelper] Event inserted with id: $id");
     return id;
   }
 
-  // 2. READ (Récupérer tous les événements)
+  // READ ALL
   Future<List<Event>> getAllEvents() async {
     Database db = await instance.database;
-    // query retourne une List<Map<String, dynamic>>.
-    final List<Map<String, dynamic>> maps = await db.query(
-        'events',
-        orderBy: 'id DESC' // Optionnel: Ordonne par ID décroissant (les plus récents d'abord)
-    );
+    final List<Map<String, dynamic>> maps = await db.query('events',
+        orderBy: 'id DESC'); // Tri par ID pour avoir les plus récents en premier
     print("[DatabaseHelper] Found ${maps.length} events in DB.");
-
-    // Convertit la List<Map<String, dynamic>> en List<Event>.
     if (maps.isEmpty) {
       return [];
     }
@@ -95,56 +78,67 @@ class DatabaseHelper {
     });
   }
 
-  // 3. READ (Récupérer un événement par ID) - Utile pour la page détail
+  // READ ONE BY ID
   Future<Event?> getEventById(int id) async {
     Database db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'events',
-      where: 'id = ?', // Clause WHERE pour filtrer par ID
-      whereArgs: [id], // Argument pour la clause WHERE
-      limit: 1,        // On ne s'attend qu'à un seul résultat
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
     );
-
     if (maps.isNotEmpty) {
       print("[DatabaseHelper] Found event with id $id: ${maps.first}");
       return Event.fromMap(maps.first);
     } else {
       print("[DatabaseHelper] Event with id $id not found.");
-      return null; // Retourne null si aucun événement avec cet ID n'est trouvé
+      return null;
     }
   }
 
-  // 4. DELETE (Supprimer un événement par ID)
+  // **** NOUVELLE MÉTHODE : READ LAST EVENT ****
+  Future<Event?> getLastEvent() async {
+    Database db = await instance.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'events',
+      orderBy: 'id DESC', // Ordonne par ID décroissant
+      limit: 1, // Ne prend que le premier (le plus récent)
+    );
+    if (maps.isNotEmpty) {
+      final lastEvent = Event.fromMap(maps.first);
+      print("[DatabaseHelper] Found last event (ID ${lastEvent.id}): ${maps.first}");
+      // Vérifie si les coordonnées sont valides avant de retourner
+      if ((lastEvent.latitude != 0.0 || lastEvent.longitude != 0.0) &&
+          lastEvent.latitude.abs() <= 90 && lastEvent.longitude.abs() <= 180) {
+        return lastEvent;
+      } else {
+        print("[DatabaseHelper] Last event (ID ${lastEvent.id}) has invalid coordinates, returning null.");
+        return null; // Retourne null si les coordonnées ne sont pas valides
+      }
+    } else {
+      print("[DatabaseHelper] No events found in the database.");
+      return null; // Retourne null si la table est vide
+    }
+  }
+  // **** FIN NOUVELLE MÉTHODE ****
+
+  // DELETE
   Future<int> deleteEvent(int id) async {
     Database db = await instance.database;
-    // La méthode delete retourne le nombre de lignes supprimées.
     print("[DatabaseHelper] Deleting event with id: $id");
     int count = await db.delete(
-      'events',       // Nom de la table
-      where: 'id = ?', // Clause WHERE pour trouver la bonne ligne
-      whereArgs: [id], // Argument pour la clause WHERE
+      'events',
+      where: 'id = ?',
+      whereArgs: [id],
     );
     print("[DatabaseHelper] Deleted $count event(s).");
     return count;
   }
 
-  // 5. UPDATE (Non utilisé pour l'instant, mais voici un exemple)
-  // Future<int> updateEvent(Event event) async {
-  //   Database db = await instance.database;
-  //   // Nécessite que l'objet Event ait un ID non null
-  //   if (event.id == null) return 0;
-  //   return await db.update(
-  //     'events',
-  //     event.toMap(),
-  //     where: 'id = ?',
-  //     whereArgs: [event.id],
-  //   );
-  // }
-
-  // --- Fermeture de la base de données (Optionnel mais bonne pratique si besoin) ---
+  // --- Fermeture ---
   Future close() async {
     Database db = await instance.database;
-    _database = null; // Réinitialise la référence
+    _database = null;
     await db.close();
     print("[DatabaseHelper] Database closed.");
   }

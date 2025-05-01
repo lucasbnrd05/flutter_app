@@ -65,7 +65,8 @@ class _AuthPageState extends State<AuthPage> {
         print("[AuthPage] Google Sign In returned null (possibly cancelled).");
       }
     } on FirebaseAuthException catch (e) {
-      print("[AuthPage] FirebaseAuthException during Google Sign-In: ${e.code}");
+      print(
+          "[AuthPage] FirebaseAuthException during Google Sign-In: ${e.code}");
       errorMessage = _getFirebaseAuthErrorMessage(e);
     } catch (e) {
       print("[AuthPage] UNEXPECTED ERROR during Google Sign-In: $e");
@@ -103,14 +104,14 @@ class _AuthPageState extends State<AuthPage> {
         print("[AuthPage] Attempting Email Sign-In...");
         user = await _authService.signInWithEmailPassword(email, password);
         if (user == null)
-          errorMessage =
-              _getFirebaseAuthErrorMessage(FirebaseAuthException(code: 'invalid-credential')); // Use helper for generic fail
+          errorMessage = _getFirebaseAuthErrorMessage(FirebaseAuthException(
+              code: 'invalid-credential')); // Use helper for generic fail
       } else {
         print("[AuthPage] Attempting Email Sign-Up...");
         user = await _authService.signUpWithEmailPassword(email, password);
         if (user == null)
           errorMessage =
-          "Sign up failed. Please check details or try a different email."; // Generic signup fail
+              "Sign up failed. Please check details or try a different email."; // Generic signup fail
       }
     } on FirebaseAuthException catch (e) {
       print("[AuthPage] FirebaseAuthException during Email Auth: ${e.code}");
@@ -129,25 +130,39 @@ class _AuthPageState extends State<AuthPage> {
       print("[AuthPage] Email Auth successful. Navigating home.");
       navigator.pushNamedAndRemoveUntil('/home', (route) => false);
     } else {
-      _showErrorDialog(errorMessage ?? 'An unknown authentication error occurred.');
+      _showErrorDialog(
+          errorMessage ?? 'An unknown authentication error occurred.');
     }
   }
 
   String _getFirebaseAuthErrorMessage(FirebaseAuthException e) {
-    print("[AuthPage] Handling FirebaseAuthException: Code: ${e.code}, Message: ${e.message}");
+    print(
+        "[AuthPage] Handling FirebaseAuthException: Code: ${e.code}, Message: ${e.message}");
     switch (e.code) {
-      case 'weak-password': return 'The password is too weak. Please use at least 6 characters.';
-      case 'email-already-in-use': return 'An account already exists for that email address. Please try logging in or use a different email.';
-      case 'user-not-found': return 'No account found for this email address. Have you signed up?';
-      case 'wrong-password': return 'Incorrect password. Please try again.';
-      case 'invalid-credential': return 'Invalid email or password. Please check your credentials.';
-      case 'invalid-email': return 'The email address format is not valid.';
-      case 'user-disabled': return 'This account has been disabled. Please contact support.';
-      case 'account-exists-with-different-credential': return 'An account already exists with this email but was created using a different sign-in method (like Google). Try signing in using that method.';
-      case 'network-request-failed': return 'Network error. Please check your internet connection and try again.';
-      case 'too-many-requests': return 'Too many login attempts. Please wait a moment and try again.';
-      case 'operation-not-allowed': return 'Email/Password sign-in is not currently enabled.';
-      default: return 'An unknown authentication error occurred. Please try again later. (Code: ${e.code})';
+      case 'weak-password':
+        return 'The password is too weak. Please use at least 6 characters.';
+      case 'email-already-in-use':
+        return 'An account already exists for that email address. Please try logging in or use a different email.';
+      case 'user-not-found':
+        return 'No account found for this email address. Have you signed up?';
+      case 'wrong-password':
+        return 'Incorrect password. Please try again.';
+      case 'invalid-credential':
+        return 'Invalid email or password. Please check your credentials.';
+      case 'invalid-email':
+        return 'The email address format is not valid.';
+      case 'user-disabled':
+        return 'This account has been disabled. Please contact support.';
+      case 'account-exists-with-different-credential':
+        return 'An account already exists with this email but was created using a different sign-in method (like Google). Try signing in using that method.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection and try again.';
+      case 'too-many-requests':
+        return 'Too many login attempts. Please wait a moment and try again.';
+      case 'operation-not-allowed':
+        return 'Email/Password sign-in is not currently enabled.';
+      default:
+        return 'An unknown authentication error occurred. Please try again later. (Code: ${e.code})';
     }
   }
 
@@ -168,7 +183,8 @@ class _AuthPageState extends State<AuthPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(Icons.eco_rounded, size: 60, color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.eco_rounded,
+                    size: 60, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 30),
                 Text(
                   _isLoginMode ? "Welcome Back!" : "Create Account",
@@ -183,35 +199,40 @@ class _AuthPageState extends State<AuthPage> {
                   duration: const Duration(milliseconds: 300),
                   child: _isLoadingGoogle
                       ? const Padding(
-                    key: ValueKey('google_loader'),
-                    padding: EdgeInsets.symmetric(vertical: 14.0),
-                    child: Center(
-                        child: SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(strokeWidth: 3))),
-                  )
+                          key: ValueKey('google_loader'),
+                          padding: EdgeInsets.symmetric(vertical: 14.0),
+                          child: Center(
+                              child: SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 3))),
+                        )
                       : ElevatedButton.icon(
-                    key: const ValueKey('google_button'),
-                    icon: Image.asset('assets/google_logo.png', height: 22.0,
-                        errorBuilder: (c, e, s) => const Icon( Icons.g_mobiledata_outlined, size: 28, color: Colors.redAccent)),
-                    label: const Text('Continue with Google'),
-                    onPressed: isLoading ? null : _signInWithGoogle,
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.grey[850],
-                      backgroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 50),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 16),
-                      textStyle: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w500),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      elevation: 1,
-                    ),
-                  ),
+                          key: const ValueKey('google_button'),
+                          icon: Image.asset('assets/google_logo.png',
+                              height: 22.0,
+                              errorBuilder: (c, e, s) => const Icon(
+                                  Icons.g_mobiledata_outlined,
+                                  size: 28,
+                                  color: Colors.redAccent)),
+                          label: const Text('Continue with Google'),
+                          onPressed: isLoading ? null : _signInWithGoogle,
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.grey[850],
+                            backgroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 50),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 0, horizontal: 16),
+                            textStyle: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w500),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            elevation: 1,
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 25),
                 if (!isLoading)
@@ -219,7 +240,8 @@ class _AuthPageState extends State<AuthPage> {
                     const Expanded(child: Divider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Text("OR", style: TextStyle(color: Colors.grey[600])),
+                      child:
+                          Text("OR", style: TextStyle(color: Colors.grey[600])),
                     ),
                     const Expanded(child: Divider()),
                   ]),
@@ -238,7 +260,8 @@ class _AuthPageState extends State<AuthPage> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Please enter your email';
                     }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value.trim())) {
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                        .hasMatch(value.trim())) {
                       return 'Please enter a valid email address';
                     }
                     return null;
@@ -266,57 +289,59 @@ class _AuthPageState extends State<AuthPage> {
                     return null;
                   },
                   textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => isLoading ? null : _submitEmailForm(),
+                  onFieldSubmitted: (_) =>
+                      isLoading ? null : _submitEmailForm(),
                 ),
                 const SizedBox(height: 25),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: _isLoadingEmail
                       ? const Padding(
-                    key: ValueKey('email_loader'),
-                    padding: EdgeInsets.symmetric(vertical: 14.0),
-                    child: Center(
-                        child: SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(strokeWidth: 3))),
-                  )
+                          key: ValueKey('email_loader'),
+                          padding: EdgeInsets.symmetric(vertical: 14.0),
+                          child: Center(
+                              child: SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 3))),
+                        )
                       : Column(
-                    key: const ValueKey('email_buttons'),
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ElevatedButton(
-                        onPressed: isLoading ? null : _submitEmailForm,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 16),
-                          textStyle: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                          key: const ValueKey('email_buttons'),
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ElevatedButton(
+                              onPressed: isLoading ? null : _submitEmailForm,
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 0, horizontal: 16),
+                                textStyle: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              child: Text(_isLoginMode
+                                  ? 'Sign In with Email'
+                                  : 'Sign Up with Email'),
+                            ),
+                            const SizedBox(height: 10),
+                            TextButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        _isLoginMode = !_isLoginMode;
+                                      });
+                                      _formKey.currentState?.reset();
+                                    },
+                              style: TextButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10)),
+                              child: Text(_isLoginMode
+                                  ? "Don't have an account? Sign Up"
+                                  : "Already have an account? Sign In"),
+                            ),
+                          ],
                         ),
-                        child: Text(_isLoginMode
-                            ? 'Sign In with Email'
-                            : 'Sign Up with Email'),
-                      ),
-                      const SizedBox(height: 10),
-                      TextButton(
-                        onPressed: isLoading
-                            ? null
-                            : () {
-                          setState(() {
-                            _isLoginMode = !_isLoginMode;
-                          });
-                          _formKey.currentState?.reset();
-                        },
-                        style: TextButton.styleFrom(
-                            padding:
-                            const EdgeInsets.symmetric(vertical: 10)),
-                        child: Text(_isLoginMode
-                            ? "Don't have an account? Sign Up"
-                            : "Already have an account? Sign In"),
-                      ),
-                    ],
-                  ),
                 ),
                 const SizedBox(height: 10),
               ],

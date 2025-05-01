@@ -1,5 +1,5 @@
 // lib/main.dart
-import 'dart:io'; // Utilisé pour Directory (si Hive est réactivé ou pour path_provider)
+// import 'dart:io'; // <-- Import retiré car Directory n'est plus utilisé directement ici
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart'; // Import User de Firebase Auth
@@ -269,8 +269,8 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       print('[ERROR HomePage] Could not launch URL: $urlString. Error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Could not open link: $urlString')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not open link: $urlString')));
       }
     }
   }
@@ -325,7 +325,8 @@ class _HomePageState extends State<HomePage> {
                       height: 200,
                       color: Colors.grey[300],
                       child: const Center(
-                          child: Icon(Icons.error_outline, color: Colors.grey)))),
+                          child:
+                          Icon(Icons.error_outline, color: Colors.grey)))),
               const SizedBox(height: 25),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -455,55 +456,54 @@ class _HomePageState extends State<HomePage> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
         child: Center(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.key_off, size: 40, color: theme.colorScheme.secondary),
-                  const SizedBox(height: 15),
-                  RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                          style: theme.textTheme.bodyLarge
-                              ?.copyWith(color: theme.textTheme.bodyLarge?.color),
-                          children: [
-                            const TextSpan(
-                                text:
-                                'To load news, please add your NYT API key in the '),
-                            TextSpan(
-                              text: 'Settings',
-                              style: TextStyle(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.pushNamed(context, '/settings');
-                                },
-                            ),
-                            const TextSpan(
-                                text: '.\n\nYou can get one for free at the '),
-                            TextSpan(
-                              text: 'NYT Developer Portal',
-                              style: TextStyle(
-                                  color: theme.colorScheme.primary,
-                                  decoration: TextDecoration.underline),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  _launchUrl('https://developer.nytimes.com/');
-                                },
-                            ),
-                            const TextSpan(text: '.'),
-                          ])),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.settings),
-                    label: const Text('Go to Settings'),
-                    onPressed: () => Navigator.pushNamed(context, '/settings'),
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primaryContainer,
-                        foregroundColor: theme.colorScheme.onPrimaryContainer),
-                  )
-                ])),
+            child:
+            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Icons.key_off, size: 40, color: theme.colorScheme.secondary),
+              const SizedBox(height: 15),
+              RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                      style: theme.textTheme.bodyLarge
+                          ?.copyWith(color: theme.textTheme.bodyLarge?.color),
+                      children: [
+                        const TextSpan(
+                            text:
+                            'To load news, please add your NYT API key in the '),
+                        TextSpan(
+                          text: 'Settings',
+                          style: TextStyle(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.pushNamed(context, '/settings');
+                            },
+                        ),
+                        const TextSpan(
+                            text: '.\n\nYou can get one for free at the '),
+                        TextSpan(
+                          text: 'NYT Developer Portal',
+                          style: TextStyle(
+                              color: theme.colorScheme.primary,
+                              decoration: TextDecoration.underline),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              _launchUrl('https://developer.nytimes.com/');
+                            },
+                        ),
+                        const TextSpan(text: '.'),
+                      ])),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.settings),
+                label: const Text('Go to Settings'),
+                onPressed: () => Navigator.pushNamed(context, '/settings'),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                    foregroundColor: theme.colorScheme.onPrimaryContainer),
+              )
+            ])),
       );
     } else if (_apiError != null) {
       return Padding(
@@ -512,7 +512,8 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, color: theme.colorScheme.error, size: 40),
+              Icon(Icons.error_outline,
+                  color: theme.colorScheme.error, size: 40),
               const SizedBox(height: 10),
               Text("Could not load articles.",
                   textAlign: TextAlign.center,
@@ -529,7 +530,8 @@ class _HomePageState extends State<HomePage> {
                   child: ElevatedButton.icon(
                       icon: const Icon(Icons.settings),
                       label: const Text('Check API Key'),
-                      onPressed: () => Navigator.pushNamed(context, '/settings')),
+                      onPressed: () =>
+                          Navigator.pushNamed(context, '/settings')),
                 ),
               ElevatedButton.icon(
                 icon: const Icon(Icons.refresh),
@@ -653,6 +655,7 @@ class ArticleCard extends StatelessWidget {
     final errorIconColor = Theme.of(context).colorScheme.onSecondaryContainer;
     if (article.imageUrl != null && article.imageUrl!.isNotEmpty) {
       String imageUrl = article.imageUrl!;
+      // Correction si l'URL est relative (manque le domaine NYT)
       if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
         imageUrl = 'https://static01.nyt.com/$imageUrl';
       }
@@ -685,8 +688,9 @@ class ArticleCard extends StatelessWidget {
         },
       );
     } else {
+      // Affiche un placeholder si pas d'image
       return Container(
-        height: imageHeight / 1.5,
+        height: imageHeight / 1.5, // Un peu moins haut si pas d'image
         color: placeholderColor,
         child: Center(
             child: Icon(Icons.image_not_supported,

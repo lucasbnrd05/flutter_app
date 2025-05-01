@@ -17,7 +17,8 @@ class LoginRequiredWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.lock_person_outlined, size: 60, color: Theme.of(context).colorScheme.secondary),
+            Icon(Icons.lock_person_outlined,
+                size: 60, color: Theme.of(context).colorScheme.secondary),
             const SizedBox(height: 25),
             Text(
               'You must be logged in with Google or Email to access "$featureName".', // Message dynamique
@@ -34,8 +35,8 @@ class LoginRequiredWidget extends StatelessWidget {
                 Navigator.pushNamed(context, '/auth');
               },
               style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)
-              ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
             )
           ],
         ),

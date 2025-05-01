@@ -141,7 +141,8 @@ class _DataPageState extends State<DataPage> {
                 child: const Text('Cancel')),
             TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Delete', style: TextStyle(color: Colors.red))),
+                child:
+                    const Text('Delete', style: TextStyle(color: Colors.red))),
           ],
         );
       },
@@ -209,14 +210,14 @@ class _DataPageState extends State<DataPage> {
       if (!mounted) return;
       setState(() {
         _positionController.text =
-        'Lat: ${position.latitude.toStringAsFixed(5)}, Lon: ${position.longitude.toStringAsFixed(5)}';
+            'Lat: ${position.latitude.toStringAsFixed(5)}, Lon: ${position.longitude.toStringAsFixed(5)}';
         _isLoadingLocation = false;
       });
     } catch (e) {
       print("[DataPage] Error getting location: $e");
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not get current location: ${e.toString()}')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Could not get current location: ${e.toString()}')));
       setState(() => _isLoadingLocation = false);
     }
   }
@@ -248,7 +249,8 @@ class _DataPageState extends State<DataPage> {
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
-            Text('Recorded Events:', style: Theme.of(context).textTheme.titleLarge),
+            Text('Recorded Events:',
+                style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 10),
             _buildSavedDataList(),
           ],
@@ -269,7 +271,7 @@ class _DataPageState extends State<DataPage> {
             isExpanded: true,
             items: _precipitationTypes
                 .map<DropdownMenuItem<String>>((String value) =>
-                DropdownMenuItem<String>(value: value, child: Text(value)))
+                    DropdownMenuItem<String>(value: value, child: Text(value)))
                 .toList(),
             onChanged: (String? newValue) {
               setState(() {
@@ -296,17 +298,17 @@ class _DataPageState extends State<DataPage> {
           const SizedBox(height: 10),
           _isLoadingLocation
               ? const Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: CircularProgressIndicator(),
-              ))
+                  child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: CircularProgressIndicator(),
+                ))
               : ElevatedButton.icon(
-            icon: const Icon(Icons.my_location),
-            label: const Text('Use Current Location'),
-            onPressed: _getCurrentLocation,
-            style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(40)),
-          ),
+                  icon: const Icon(Icons.my_location),
+                  label: const Text('Use Current Location'),
+                  onPressed: _getCurrentLocation,
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(40)),
+                ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _saveData,
@@ -337,9 +339,9 @@ class _DataPageState extends State<DataPage> {
             if (events.isEmpty) {
               return const Center(
                   child: Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text('No events recorded yet.'),
-                  ));
+                padding: EdgeInsets.all(20.0),
+                child: Text('No events recorded yet.'),
+              ));
             }
             return ListView.builder(
               shrinkWrap: true,
@@ -354,7 +356,7 @@ class _DataPageState extends State<DataPage> {
                   print("Error parsing timestamp: ${event.timestamp}");
                 }
                 final formattedDate =
-                DateFormat.yMd().add_Hms().format(dateTimeLocal);
+                    DateFormat.yMd().add_Hms().format(dateTimeLocal);
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   child: ListTile(
@@ -392,14 +394,22 @@ class _DataPageState extends State<DataPage> {
 
   IconData _getIconForType(String? type) {
     switch (type) {
-      case 'Flood': return Icons.water_drop;
-      case 'Drought': return Icons.local_fire_department_outlined;
-      case 'Fallen Trees': return Icons.park_outlined;
-      case 'Heavy Hail': return Icons.grain;
-      case 'Heavy Rain': return Icons.water_drop_outlined;
-      case 'Heavy Snow': return Icons.ac_unit;
-      case 'Other (specify in position)': return Icons.help_outline;
-      default: return Icons.report_problem_outlined;
+      case 'Flood':
+        return Icons.water_drop;
+      case 'Drought':
+        return Icons.local_fire_department_outlined;
+      case 'Fallen Trees':
+        return Icons.park_outlined;
+      case 'Heavy Hail':
+        return Icons.grain;
+      case 'Heavy Rain':
+        return Icons.water_drop_outlined;
+      case 'Heavy Snow':
+        return Icons.ac_unit;
+      case 'Other (specify in position)':
+        return Icons.help_outline;
+      default:
+        return Icons.report_problem_outlined;
     }
   }
 }
