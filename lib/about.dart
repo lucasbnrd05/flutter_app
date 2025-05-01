@@ -13,8 +13,8 @@ class AboutPage extends StatelessWidget {
     if (urlString.isEmpty) {
       print('[WARN AboutPage] Empty URL');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Link not available.')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Link not available.')));
       }
       return;
     }
@@ -25,8 +25,8 @@ class AboutPage extends StatelessWidget {
     } catch (e) {
       print('[ERROR AboutPage] Could not launch URL: $urlString. Error: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Could not open link: $urlString')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not open link: $urlString')));
       }
     }
   }
@@ -83,7 +83,8 @@ class AboutPage extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            _launchUrl(context, 'https://developer.nytimes.com/');
+                            _launchUrl(
+                                context, 'https://developer.nytimes.com/');
                           },
                       ),
                       const TextSpan(text: 'Air quality data provided by '),

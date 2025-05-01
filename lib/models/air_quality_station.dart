@@ -6,8 +6,10 @@ class AirQualityStation {
   final int locationId;
   final String locationName;
   final LatLng coordinates;
-  final List<String> parameters; // Noms des paramètres que la station PEUT mesurer
-  List<Measurement> measurements; // Dernières mesures récupérées pour cette station (mutable via copyWith)
+  final List<String>
+      parameters; // Noms des paramètres que la station PEUT mesurer
+  List<Measurement>
+      measurements; // Dernières mesures récupérées pour cette station (mutable via copyWith)
   final String? city;
   final String? country;
 
@@ -25,18 +27,27 @@ class AirQualityStation {
   factory AirQualityStation.fromJson(Map<String, dynamic> json) {
     LatLng coords = const LatLng(0, 0);
     if (json['coordinates'] != null && json['coordinates'] is Map) {
-      final latNum = json['coordinates']['latitude']; final lonNum = json['coordinates']['longitude'];
+      final latNum = json['coordinates']['latitude'];
+      final lonNum = json['coordinates']['longitude'];
       // Vérifie que lat/lon sont des nombres valides ET non (0,0)
-      if (latNum is num && lonNum is num && (latNum.abs() > 0.0001 || lonNum.abs() > 0.0001)) {
+      if (latNum is num &&
+          lonNum is num &&
+          (latNum.abs() > 0.0001 || lonNum.abs() > 0.0001)) {
         coords = LatLng(latNum.toDouble(), lonNum.toDouble());
-      } else { print("[WARN AQModel Loc] Invalid or (0,0) coordinates: ${json['coordinates']}"); }
-    } else { print("[WARN AQModel Loc] Missing 'coordinates' field."); }
+      } else {
+        print(
+            "[WARN AQModel Loc] Invalid or (0,0) coordinates: ${json['coordinates']}");
+      }
+    } else {
+      print("[WARN AQModel Loc] Missing 'coordinates' field.");
+    }
 
     // Parse la liste des noms de paramètres depuis la liste 'sensors'
     List<String> paramNames = [];
     if (json['sensors'] != null && json['sensors'] is List) {
       for (var sensorObj in (json['sensors'] as List)) {
-        if (sensorObj is Map<String, dynamic> && sensorObj['parameter'] is Map<String, dynamic>) {
+        if (sensorObj is Map<String, dynamic> &&
+            sensorObj['parameter'] is Map<String, dynamic>) {
           final parameterMap = sensorObj['parameter'] as Map<String, dynamic>;
           // Utilise la clé 'name' qui contient "pm25", "o3" etc.
           final paramCode = parameterMap['name'] as String?;
@@ -46,26 +57,41 @@ class AirQualityStation {
         }
       }
       paramNames.sort();
-    } else { print("[WARN AQModel Loc] Missing or invalid 'sensors' list for loc id ${json['id']}."); }
+    } else {
+      print(
+          "[WARN AQModel Loc] Missing or invalid 'sensors' list for loc id ${json['id']}.");
+    }
 
     return AirQualityStation(
       locationId: json['id'] as int? ?? 0,
-      locationName: _tryDecodeUtf8(json['name'] as String? ?? 'Unknown Location'),
+      locationName:
+          _tryDecodeUtf8(json['name'] as String? ?? 'Unknown Location'),
       coordinates: coords,
       parameters: paramNames,
       measurements: const [], // Initialement vide, sera rempli par le service
-      city: _tryDecodeUtf8(json['city'] as String? ?? json['locality'] as String? ?? 'N/A'),
-      country: json['country'] is Map ? _tryDecodeUtf8(json['country']['name'] as String? ?? 'N/A') : 'N/A',
+      city: _tryDecodeUtf8(
+          json['city'] as String? ?? json['locality'] as String? ?? 'N/A'),
+      country: json['country'] is Map
+          ? _tryDecodeUtf8(json['country']['name'] as String? ?? 'N/A')
+          : 'N/A',
     );
   }
 
-  static String _tryDecodeUtf8(String input) { try { return utf8.decode(latin1.encode(input)); } catch (_) { return input; } }
+  static String _tryDecodeUtf8(String input) {
+    try {
+      return utf8.decode(latin1.encode(input));
+    } catch (_) {
+      return input;
+    }
+  }
 
   // Méthode pour créer une copie avec les mesures mises à jour
-  AirQualityStation copyWith({ List<Measurement>? measurements }) {
+  AirQualityStation copyWith({List<Measurement>? measurements}) {
     return AirQualityStation(
-      locationId: locationId, locationName: locationName, coordinates: coordinates, parameters: parameters,
-      measurements: measurements ?? this.measurements, // Utilise les nouvelles mesures
+      locationId: locationId, locationName: locationName,
+      coordinates: coordinates, parameters: parameters,
+      measurements:
+          measurements ?? this.measurements, // Utilise les nouvelles mesures
       city: city, country: country,
     );
   }
@@ -74,7 +100,7 @@ class AirQualityStation {
 // Classe Measurement adaptée pour parser la réponse de /v3/measurements
 class Measurement {
   final int? locationId; // Renvoyé par /v3/measurements
-  final String parameter;  // Nom court (ex: "pm25")
+  final String parameter; // Nom court (ex: "pm25")
   final double value;
   final DateTime lastUpdated; // Heure UTC de la mesure
   final String unit;
@@ -97,7 +123,9 @@ class Measurement {
     final dateObject = json['date'];
     if (dateObject is Map && dateObject['utc'] is String) {
       updated = DateTime.tryParse(dateObject['utc'])?.toUtc() ?? updated;
-    } else { print("[WARN Measurement] Missing 'date.utc'"); }
+    } else {
+      print("[WARN Measurement] Missing 'date.utc'");
+    }
 
     final valueNum = json['value'] as num?;
     final String paramName = json['parameter'] as String? ?? 'unknown';
