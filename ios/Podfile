@@ -1,5 +1,5 @@
-# Uncomment this line to define a global platform for your project
-# platform :ios, '12.0'
+# Définir la plateforme globale pour ton projet iOS
+platform :ios, '13.0' # <-- LIGNE DÉCOMMENTÉE ET VERSION MISE À JOUR
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -28,16 +28,22 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 flutter_ios_podfile_setup
 
 target 'Runner' do
-  use_frameworks!
+  use_frameworks! # Utilise les frameworks dynamiques (souvent nécessaire avec Firebase)
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  target 'RunnerTests' do
-    inherit! :search_paths
-  end
+  # La cible RunnerTests n'est généralement pas nécessaire sauf si tu écris des tests natifs iOS
+  # target 'RunnerTests' do
+  #   inherit! :search_paths
+  # end
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    # --- Ajout possible pour compatibilité (pas toujours nécessaire) ---
+    # target.build_configurations.each do |config|
+    #   config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+    # end
+    # --- Fin ajout possible ---
   end
 end
