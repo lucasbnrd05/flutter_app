@@ -3,18 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart'; // Importe Provider
-import 'package:firebase_auth/firebase_auth.dart'; // Importe User
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-// Importe les éléments SQFlite et la page détail
 import '../models/event.dart';
 import '../services/database_helper.dart';
 import 'event_detail_page.dart';
-// Importe le nouveau widget
-import '../ux_unit/login_required_widget.dart'; // <-- NOUVEL IMPORT
+import '../ux_unit/login_required_widget.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-
-import 'ux_unit/custom_drawer.dart'; // Garde le drawer
+import 'ux_unit/custom_drawer.dart';
 
 class DataPage extends StatefulWidget {
   const DataPage({super.key});
@@ -43,16 +40,14 @@ class _DataPageState extends State<DataPage> {
   }
 
   Future<List<Event>> _fetchEvents() async {
+    // La vérification se fait dans build()
     return _dbHelper.getAllEvents();
   }
 
   void _refreshEventsList() {
-    // Vérifie si connecté avant de rafraîchir (sécurité additionnelle)
     final user = Provider.of<User?>(context, listen: false);
     if (user != null && !user.isAnonymous) {
-      setState(() {
-        _eventsFuture = _fetchEvents();
-      });
+      setState(() { _eventsFuture = _fetchEvents(); });
     }
   }
 
@@ -65,7 +60,6 @@ class _DataPageState extends State<DataPage> {
   ({double? latitude, double? longitude}) _parsePositionString(String text) { try { final regex = RegExp(r"Lat:\s*(-?\d+\.?\d*),\s*Lon:\s*(-?\d+\.?\d*)"); final match = regex.firstMatch(text); if (match != null && match.groupCount == 2) { final lat = double.tryParse(match.group(1)!); final lon = double.tryParse(match.group(2)!); if (lat != null && lon != null) { return (latitude: lat, longitude: lon); } } } catch (e) { print("[DataPage] Error parsing position string '$text': $e"); } return (latitude: null, longitude: null); }
 
   Future<void> _saveData() async {
-    // La vérification principale est dans build()
     if (_formKey.currentState!.validate()) {
       final String type = _selectedPrecipitation!;
       final String descriptionOrPosition = _positionController.text.trim();
@@ -73,66 +67,32 @@ class _DataPageState extends State<DataPage> {
       final coords = _parsePositionString(descriptionOrPosition);
       double latitude = coords.latitude ?? 0.0;
       double longitude = coords.longitude ?? 0.0;
-
       final Event newEvent = Event( type: type, latitude: latitude, longitude: longitude, description: descriptionOrPosition, timestamp: timestamp, );
-
-      try {
-        await _dbHelper.insertEvent(newEvent);
-        if (!mounted) return;
-        _formKey.currentState!.reset();
-        _positionController.clear();
-        setState(() { _selectedPrecipitation = null; });
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Event saved successfully!')), );
-        _refreshEventsList();
-      } catch (e) {
-        print('[DataPage] Error saving data to SQFlite: $e');
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text('Error saving data: ${e.toString()}')), );
-      }
-    } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar( const SnackBar( content: Text('Please fill all required fields (*) correctly.'), backgroundColor: Colors.orange, ), );
-    }
+      try { await _dbHelper.insertEvent(newEvent); if (!mounted) return; _formKey.currentState!.reset(); _positionController.clear(); setState(() { _selectedPrecipitation = null; }); ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Event saved successfully!')), ); _refreshEventsList(); } catch (e) { print('[DataPage] Error saving data to SQFlite: $e'); if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text('Error saving data: ${e.toString()}')), ); }
+    } else { if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar( const SnackBar( content: Text('Please fill all required fields (*) correctly.'), backgroundColor: Colors.orange, ), ); }
   }
 
   Future<void> _confirmDeleteEntry(int eventId) async {
-    // La vérification principale est dans build()
     if (!mounted) return;
     final confirm = await showDialog<bool>( context: context, builder: (BuildContext context) { return AlertDialog( title: const Text('Confirm Deletion'), content: const Text('Do you really want to delete this entry?'), actions: <Widget>[ TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')), TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Delete', style: TextStyle(color: Colors.red))), ], ); }, );
-
-    if (confirm == true) {
-      try {
-        await _dbHelper.deleteEvent(eventId);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Entry deleted.')), );
-        _refreshEventsList();
-      } catch (e) {
-        print('[DataPage] Error deleting entry from SQFlite: $e');
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text('Error deleting entry: $e')), );
-      }
-    }
+    if (confirm == true) { try { await _dbHelper.deleteEvent(eventId); if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Entry deleted.')), ); _refreshEventsList(); } catch (e) { print('[DataPage] Error deleting entry from SQFlite: $e'); if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text('Error deleting entry: $e')), ); } }
   }
 
   Future<void> _getCurrentLocation() async { if (kIsWeb) { if(mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar( content: Text('Automatic location not fully supported on web.'))); return; } if (!mounted) return; setState(() { _isLoadingLocation = true; }); bool serviceEnabled; LocationPermission permission; serviceEnabled = await Geolocator.isLocationServiceEnabled(); if (!serviceEnabled) { if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar(const SnackBar( content: Text('Location services are disabled.'))); setState(() => _isLoadingLocation = false); return; } permission = await Geolocator.checkPermission(); if (permission == LocationPermission.denied) { permission = await Geolocator.requestPermission(); if (permission == LocationPermission.denied) { if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Location permissions are denied.'))); setState(() => _isLoadingLocation = false); return; } } if (permission == LocationPermission.deniedForever) { if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar(const SnackBar( content: Text('Location permissions permanently denied...'))); await openAppSettings(); setState(() => _isLoadingLocation = false); return; } try { Position position = await Geolocator.getCurrentPosition( desiredAccuracy: LocationAccuracy.high); if (!mounted) return; setState(() { _positionController.text = 'Lat: ${position.latitude.toStringAsFixed(5)}, Lon: ${position.longitude.toStringAsFixed(5)}'; _isLoadingLocation = false; }); } catch (e) { print("[DataPage] Error getting location: $e"); if (!mounted) return; ScaffoldMessenger.of(context).showSnackBar(SnackBar( content: Text('Could not get current location: ${e.toString()}'))); setState(() => _isLoadingLocation = false); } }
 
   @override
   Widget build(BuildContext context) {
-    // --- Vérification de l'état d'authentification ---
     final User? user = Provider.of<User?>(context);
     final bool isTrulyLoggedIn = user != null && !user.isAnonymous;
 
-    // Si l'utilisateur n'est pas vraiment connecté, affiche le widget dédié
     if (!isTrulyLoggedIn) {
       return Scaffold(
         appBar: AppBar(title: const Text('Report Environmental Event')),
         drawer: const CustomDrawer(),
-        // Affiche le widget réutilisable au centre
         body: const LoginRequiredWidget(featureName: "Report Data"),
       );
     }
 
-    // Si l'utilisateur est connecté, affiche le contenu normal de la page
     return Scaffold(
       appBar: AppBar( title: const Text('Report Environmental Event'), ),
       drawer: const CustomDrawer(),
