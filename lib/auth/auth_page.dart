@@ -16,195 +16,175 @@ class _AuthPageState extends State<AuthPage> {
   bool _isLoadingEmail = false;
   final AuthService _authService = AuthService();
 
-  // --- Décommenter et initialiser ---
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Clé pour le formulaire
-  // --- Fin ---
-
-  // Variable pour basculer entre Login et Sign Up
-  bool _isLoginMode = true;
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isLoginMode = true; // True for Login, False for Sign Up
 
   @override
   void dispose() {
-    // --- Disposer les contrôleurs ---
     _emailController.dispose();
     _passwordController.dispose();
-    // --- Fin ---
     super.dispose();
   }
 
-  Future<void> _signInWithGoogle() async { /* ... inchangé ... */ if (_isLoadingGoogle) return; setState(() => _isLoadingGoogle = true); final navigator = Navigator.of(context); final scaffoldMessenger = ScaffoldMessenger.of(context); User? user; try { user = await _authService.signInWithGoogle(); } finally { if (mounted) { setState(() => _isLoadingGoogle = false); } } if (user == null) { if(mounted){ scaffoldMessenger.showSnackBar( const SnackBar( content: Text('Google Sign-In failed. Check network or configuration.'), backgroundColor: Colors.redAccent, ), ); } } else { print("[AuthPage] Google Sign-In success. Navigating to /home and removing previous routes."); navigator.pushNamedAndRemoveUntil('/home', (route) => false); } }
+  // Helper pour afficher les erreurs dans un AlertDialog
+  void _showErrorDialog(String message) {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: Theme.of(ctx).colorScheme.error),
+            const SizedBox(width: 10),
+            const Text('Authentication Error'),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () => Navigator.of(ctx).pop(),
+          )
+        ],
+      ),
+    );
+  }
 
-  // --- Méthodes Email/Password MODIFIÉES ---
-  Future<void> _submitEmailForm() async {
-    // 1. Valide le formulaire
-    if (!(_formKey.currentState?.validate() ?? false)) {
-      return; // Ne fait rien si le formulaire n'est pas valide
+  Future<void> _signInWithGoogle() async {
+    if (_isLoadingGoogle || _isLoadingEmail) return;
+    setState(() => _isLoadingGoogle = true);
+    final navigator = Navigator.of(context);
+
+    User? user;
+    String? errorMessage;
+    try {
+      user = await _authService.signInWithGoogle();
+      if (user == null) { print("[AuthPage] Google Sign In returned null (possibly cancelled)."); }
+    } on FirebaseAuthException catch(e) {
+      print("[AuthPage] FirebaseAuthException during Google Sign-In: ${e.code}");
+      errorMessage = _getFirebaseAuthErrorMessage(e);
+    } catch (e) {
+      print("[AuthPage] UNEXPECTED ERROR during Google Sign-In: $e");
+      errorMessage = "An unexpected error occurred during Google Sign-In.";
+    } finally {
+      if (mounted) { setState(() => _isLoadingGoogle = false); }
     }
-    // Empêche double clic pendant chargement
-    if (_isLoadingEmail) return;
 
-    // 2. Démarre le chargement
+    if (!navigator.mounted) return;
+    if (user != null) {
+      navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+    } else if (errorMessage != null) {
+      _showErrorDialog(errorMessage);
+    }
+  }
+
+  Future<void> _submitEmailForm() async {
+    if (!(_formKey.currentState?.validate() ?? false)) { return; }
+    if (_isLoadingGoogle || _isLoadingEmail) return;
     setState(() => _isLoadingEmail = true);
 
-    // 3. Récupère les valeurs
     final email = _emailController.text.trim();
-    final password = _passwordController.text; // Pas de trim sur le mot de passe
-
-    // Références Navigator/ScaffoldMessenger avant l'async
+    final password = _passwordController.text;
     final navigator = Navigator.of(context);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     User? user;
     String? errorMessage;
 
     try {
-      // 4. Appelle la bonne méthode du service selon le mode
       if (_isLoginMode) {
         print("[AuthPage] Attempting Email Sign-In...");
         user = await _authService.signInWithEmailPassword(email, password);
-        if (user == null) errorMessage = "Login failed. Check email/password.";
+        if (user == null) errorMessage = _getFirebaseAuthErrorMessage(FirebaseAuthException(code: 'invalid-credential'));
       } else {
         print("[AuthPage] Attempting Email Sign-Up...");
         user = await _authService.signUpWithEmailPassword(email, password);
-        if (user == null) errorMessage = "Sign up failed. Email might be in use or password too weak.";
+        if (user == null) errorMessage = "Sign up failed. Please check details or try a different email.";
       }
-    } catch (e) { // Capture d'autres erreurs potentielles
+    } on FirebaseAuthException catch (e) {
+      print("[AuthPage] FirebaseAuthException during Email Auth: ${e.code}");
+      errorMessage = _getFirebaseAuthErrorMessage(e);
+    } catch (e) {
       print("[AuthPage] Error during Email Auth: $e");
       errorMessage = "An unexpected error occurred.";
     } finally {
-      // Arrête le chargement si toujours monté
-      if (mounted) {
-        setState(() => _isLoadingEmail = false);
-      }
+      if (mounted) { setState(() => _isLoadingEmail = false); }
     }
 
-    // 5. Gère le résultat
-    if (!navigator.mounted) return; // Vérifie à nouveau si le widget existe
-
+    if (!navigator.mounted) return;
     if (user != null) {
-      // Succès : Navigue vers Home
       print("[AuthPage] Email Auth successful. Navigating home.");
       navigator.pushNamedAndRemoveUntil('/home', (route) => false);
     } else {
-      // Échec : Affiche l'erreur
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text(errorMessage ?? 'An unknown error occurred.'), // Message d'erreur
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      _showErrorDialog(errorMessage ?? 'An unknown authentication error occurred.');
     }
   }
-  // --- Fin Méthodes Email/Password ---
 
+  // Helper pour traduire les codes d'erreur Firebase Auth
+  String _getFirebaseAuthErrorMessage(FirebaseAuthException e) {
+    print("[AuthPage] Handling FirebaseAuthException: Code: ${e.code}, Message: ${e.message}");
+    switch (e.code) {
+      case 'weak-password': return 'The password is too weak. Please use at least 6 characters.';
+      case 'email-already-in-use': return 'An account already exists for that email address. Please try logging in or use a different email.';
+      case 'user-not-found': return 'No account found for this email address. Have you signed up?';
+      case 'wrong-password': return 'Incorrect password. Please try again.';
+      case 'invalid-credential': return 'Invalid email or password. Please check your credentials.';
+      case 'invalid-email': return 'The email address format is not valid.';
+      case 'user-disabled': return 'This account has been disabled. Please contact support.';
+      case 'account-exists-with-different-credential': return 'An account already exists with this email but was created using a different sign-in method (like Google). Try signing in using that method.';
+      case 'network-request-failed': return 'Network error. Please check your internet connection and try again.';
+      case 'too-many-requests': return 'Too many login attempts. Please wait a moment and try again.';
+      case 'operation-not-allowed': return 'Email/Password sign-in is not currently enabled.';
+    // L'erreur anonyme n'est plus pertinente ici
+    // case 'admin-restricted-operation': return 'Anonymous sign-in is currently restricted by admin settings.';
+      default: return 'An unknown authentication error occurred. Please try again later. (Code: ${e.code})';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bool isLoading = _isLoadingGoogle || _isLoadingEmail;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isLoginMode ? "Login" : "Sign Up"), // Titre dynamique
-      ),
+      appBar: AppBar( title: Text(_isLoginMode ? "Login" : "Sign Up"), ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 24.0),
-          // --- Ajout du Widget Form ---
           child: Form(
-            key: _formKey, // Lie la clé au formulaire
+            key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Icon(Icons.eco_rounded, size: 60, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 30),
-                Text(
-                  _isLoginMode ? "Welcome Back!" : "Create Account", // Texte dynamique
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
+                Text( _isLoginMode ? "Welcome Back!" : "Create Account", textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500), ),
                 const SizedBox(height: 40),
 
-                // Bouton Google (inchangé)
-                if (!_isLoadingEmail && !_isLoadingGoogle) // Cache si l'autre loader est actif
-                  ElevatedButton.icon( icon: Image.asset( 'assets/google_logo.png', height: 22.0, errorBuilder: (c,e,s) => const Icon(Icons.g_mobiledata_outlined, size: 28, color: Colors.redAccent) ), label: const Text('Continue with Google'), onPressed: _signInWithGoogle, style: ElevatedButton.styleFrom( foregroundColor: Colors.grey[850], backgroundColor: Colors.white, minimumSize: const Size(double.infinity, 50), padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16), textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500), shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(8), side: BorderSide(color: Colors.grey.shade300), ), elevation: 1, ), ),
-                if (_isLoadingGoogle)
-                  const Center(child: Padding( padding: EdgeInsets.symmetric(vertical: 14.0), child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 3)), )),
+                // Bouton Google
+                AnimatedSwitcher( duration: const Duration(milliseconds: 300), child: _isLoadingGoogle ? const Padding( key: ValueKey('google_loader'), padding: EdgeInsets.symmetric(vertical: 14.0), child: Center(child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 3))), ) : ElevatedButton.icon( key: const ValueKey('google_button'), icon: Image.asset( 'assets/google_logo.png', height: 22.0, errorBuilder: (c,e,s) => const Icon(Icons.g_mobiledata_outlined, size: 28, color: Colors.redAccent) ), label: const Text('Continue with Google'), onPressed: isLoading ? null : _signInWithGoogle, style: ElevatedButton.styleFrom( foregroundColor: Colors.grey[850], backgroundColor: Colors.white, minimumSize: const Size(double.infinity, 50), padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16), textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500), shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(8), side: BorderSide(color: Colors.grey.shade300), ), elevation: 1, ), ), ),
 
                 const SizedBox(height: 25),
-                if (!_isLoadingGoogle && !_isLoadingEmail) // Cache si l'autre loader est actif
-                  Row(children: <Widget>[ const Expanded(child: Divider()), Padding( padding: const EdgeInsets.symmetric(horizontal: 10), child: Text("OR", style: TextStyle(color: Colors.grey[600])), ), const Expanded(child: Divider()), ]),
+                if (!isLoading) Row(children: <Widget>[ const Expanded(child: Divider()), Padding( padding: const EdgeInsets.symmetric(horizontal: 10), child: Text("OR", style: TextStyle(color: Colors.grey[600])), ), const Expanded(child: Divider()), ]),
                 const SizedBox(height: 25),
 
                 // Champs Email/Password
-                TextFormField(
-                  controller: _emailController, // Lie le contrôleur
-                  decoration: const InputDecoration( labelText: 'Email', prefixIcon: Icon(Icons.email_outlined), border: OutlineInputBorder(), filled: true, ),
-                  keyboardType: TextInputType.emailAddress,
-                  enabled: !_isLoadingEmail && !_isLoadingGoogle, // Désactive pendant chargement
-                  // Validation simple
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    // Regex simple pour vérifier le format email
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null; // Valide
-                  },
-                ),
+                TextFormField( controller: _emailController, decoration: const InputDecoration( labelText: 'Email', prefixIcon: Icon(Icons.email_outlined), border: OutlineInputBorder(), filled: true, ), keyboardType: TextInputType.emailAddress, enabled: !isLoading, validator: (value) { if (value == null || value.trim().isEmpty) { return 'Please enter your email'; } if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value.trim())) { return 'Please enter a valid email address'; } return null; }, textInputAction: TextInputAction.next, ),
                 const SizedBox(height: 15),
-                TextFormField(
-                  controller: _passwordController, // Lie le contrôleur
-                  decoration: const InputDecoration( labelText: 'Password', prefixIcon: Icon(Icons.lock_outlined), border: OutlineInputBorder(), filled: true, ),
-                  obscureText: true, // Masque le mot de passe
-                  enabled: !_isLoadingEmail && !_isLoadingGoogle, // Désactive pendant chargement
-                  // Validation simple
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null; // Valide
-                  },
-                ),
+                TextFormField( controller: _passwordController, decoration: const InputDecoration( labelText: 'Password', prefixIcon: Icon(Icons.lock_outlined), border: OutlineInputBorder(), filled: true, ), obscureText: true, enabled: !isLoading, validator: (value) { if (value == null || value.isEmpty) { return 'Please enter your password'; } if (value.length < 6) { return 'Password must be at least 6 characters'; } return null; }, textInputAction: TextInputAction.done, onFieldSubmitted: (_) => isLoading ? null : _submitEmailForm(), ),
                 const SizedBox(height: 25),
 
                 // Boutons Email/Password
-                if (_isLoadingEmail)
-                  const Center(child: Padding( padding: EdgeInsets.symmetric(vertical: 14.0), child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 3)), ))
-                else
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ElevatedButton(
-                        // Appelle la fonction de soumission du formulaire
-                        onPressed: _isLoadingGoogle ? null : _submitEmailForm,
-                        style: ElevatedButton.styleFrom( minimumSize: const Size(double.infinity, 50), padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16), textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), ),
-                        // Texte dynamique Login/Sign Up
-                        child: Text(_isLoginMode ? 'Sign In with Email' : 'Sign Up with Email'),
-                      ),
-                      const SizedBox(height: 10),
-                      // Bouton pour basculer entre Login et Sign Up
-                      TextButton(
-                        onPressed: _isLoadingGoogle ? null : () {
-                          setState(() {
-                            _isLoginMode = !_isLoginMode; // Inverse le mode
-                          });
-                        },
-                        style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 10)),
-                        // Texte dynamique
-                        child: Text(_isLoginMode
-                            ? "Don't have an account? Sign Up"
-                            : "Already have an account? Sign In"),
-                      ),
-                    ],
-                  ),
-                const SizedBox(height: 30),
+                AnimatedSwitcher( duration: const Duration(milliseconds: 300), child: _isLoadingEmail ? const Padding( key: ValueKey('email_loader'), padding: EdgeInsets.symmetric(vertical: 14.0), child: Center(child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 3))), ) : Column( key: const ValueKey('email_buttons'), crossAxisAlignment: CrossAxisAlignment.stretch, children: [ ElevatedButton( onPressed: isLoading ? null : _submitEmailForm, style: ElevatedButton.styleFrom( minimumSize: const Size(double.infinity, 50), padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16), textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), ), child: Text(_isLoginMode ? 'Sign In with Email' : 'Sign Up with Email'), ), const SizedBox(height: 10), TextButton( onPressed: isLoading ? null : () { setState(() { _isLoginMode = !_isLoginMode; }); _formKey.currentState?.reset(); }, style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 10)), child: Text(_isLoginMode ? "Don't have an account? Sign Up" : "Already have an account? Sign In"), ), ], ), ),
+
+                // --- BOUTON GUEST RETIRÉ ---
+                // const SizedBox(height: 30),
+                // AnimatedSwitcher(...)
+                // --- FIN BOUTON GUEST ---
+
+                const SizedBox(height: 10), // Espace en bas ajusté
               ],
             ),
           ),
