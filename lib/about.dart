@@ -121,7 +121,7 @@ class AboutPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                "Created by Dina Didouche.",
+                "Created by GreenWatch Team.",
                 textAlign: TextAlign.center,
                 style: theme.textTheme.labelSmall,
               ),

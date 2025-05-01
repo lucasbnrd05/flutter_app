@@ -13,11 +13,10 @@ class CustomDrawer extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final User? user = Provider.of<User?>(context);
     final bool isLoggedIn = user != null;
-    // isTrulyLoggedIn n'est pas utilisé dans cette version, mais on pourrait l'ajouter si besoin
-    // final bool isTrulyLoggedIn = user != null && !user.isAnonymous;
+
 
     void navigateIfNeeded(String routeName) {
-      Navigator.pop(context); // Ferme drawer
+      Navigator.pop(context);
       final currentRoute = ModalRoute.of(context)?.settings.name;
       if (currentRoute != routeName ||
           (routeName == '/home' && currentRoute == null)) {
@@ -34,18 +33,16 @@ class CustomDrawer extends StatelessWidget {
       final navigator = Navigator.of(context);
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-      navigator.pop(); // Ferme le drawer immédiatement
+      navigator.pop();
 
       try {
-        await AuthService().signOut(); // Déconnecte l'utilisateur
+        await AuthService().signOut();
         print("[CustomDrawer] User signed out.");
 
-        // Redirection vers HomePage après déconnexion
         navigator.pushNamedAndRemoveUntil('/home', (route) => false);
         print("[CustomDrawer] Navigated to /home after sign out.");
       } catch (e) {
         print("[CustomDrawer] Error during sign out navigation: $e");
-        // Utilise le scaffoldMessenger capturé
         if (scaffoldMessenger.mounted) {
           scaffoldMessenger.showSnackBar(
             const SnackBar(
@@ -56,7 +53,6 @@ class CustomDrawer extends StatelessWidget {
     }
 
     Widget buildDrawerHeader() {
-      // Ton style de header préféré
       return DrawerHeader(
         decoration: BoxDecoration(
           color: colorScheme.primaryContainer,
@@ -71,7 +67,7 @@ class CustomDrawer extends StatelessWidget {
               child: Icon(
                   isLoggedIn
                       ? Icons.person_outline
-                      : Icons.eco_rounded, // Icone basée sur isLoggedIn
+                      : Icons.eco_rounded,
                   color: colorScheme.primary,
                   size: 40),
             ),
@@ -83,7 +79,6 @@ class CustomDrawer extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            // Affichage optionnel du nom/email
             if (isLoggedIn)
               Padding(
                 padding: const EdgeInsets.only(top: 4.0),
@@ -109,7 +104,7 @@ class CustomDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          buildDrawerHeader(), // Utilise ton header
+          buildDrawerHeader(),
           ListTile(
             leading: const Icon(Icons.home_outlined),
             title: const Text("Home"),
@@ -124,8 +119,8 @@ class CustomDrawer extends StatelessWidget {
             leading: const Icon(Icons.add_chart_outlined),
             title: const Text("Report Data"),
             onTap: () =>
-                navigateIfNeeded('/data'), // La page cible gère le blocage
-            enabled: true, // Reste actif visuellement
+                navigateIfNeeded('/data'),
+            enabled: true,
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
@@ -137,11 +132,10 @@ class CustomDrawer extends StatelessWidget {
             leading: const Icon(Icons.settings_outlined),
             title: const Text("Settings"),
             onTap: () =>
-                navigateIfNeeded('/settings'), // La page cible gère le blocage
-            enabled: true, // Reste actif visuellement
+                navigateIfNeeded('/settings'),
+            enabled: true,
           ),
           const Divider(),
-          // Section Login/Logout
           if (!isLoggedIn)
             ListTile(
               leading: const Icon(Icons.login),

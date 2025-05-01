@@ -1,13 +1,12 @@
 // lib/data.dart
-import 'package:firebase_auth/firebase_auth.dart'; // Importe User
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart'; // Importe Provider
+import 'package:provider/provider.dart';
 
-// Importe les éléments locaux
 import '../models/event.dart';
 import '../services/database_helper.dart';
 import '../ux_unit/custom_drawer.dart';
@@ -47,7 +46,6 @@ class _DataPageState extends State<DataPage> {
   }
 
   Future<List<Event>> _fetchEvents() async {
-    // La vérification se fait dans build()
     return _dbHelper.getAllEvents();
   }
 
@@ -142,7 +140,7 @@ class _DataPageState extends State<DataPage> {
             TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 child:
-                    const Text('Delete', style: TextStyle(color: Colors.red))),
+                const Text('Delete', style: TextStyle(color: Colors.red))),
           ],
         );
       },
@@ -210,7 +208,7 @@ class _DataPageState extends State<DataPage> {
       if (!mounted) return;
       setState(() {
         _positionController.text =
-            'Lat: ${position.latitude.toStringAsFixed(5)}, Lon: ${position.longitude.toStringAsFixed(5)}';
+        'Lat: ${position.latitude.toStringAsFixed(5)}, Lon: ${position.longitude.toStringAsFixed(5)}';
         _isLoadingLocation = false;
       });
     } catch (e) {
@@ -271,7 +269,7 @@ class _DataPageState extends State<DataPage> {
             isExpanded: true,
             items: _precipitationTypes
                 .map<DropdownMenuItem<String>>((String value) =>
-                    DropdownMenuItem<String>(value: value, child: Text(value)))
+                DropdownMenuItem<String>(value: value, child: Text(value)))
                 .toList(),
             onChanged: (String? newValue) {
               setState(() {
@@ -298,17 +296,17 @@ class _DataPageState extends State<DataPage> {
           const SizedBox(height: 10),
           _isLoadingLocation
               ? const Center(
-                  child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: CircularProgressIndicator(),
-                ))
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: CircularProgressIndicator(),
+              ))
               : ElevatedButton.icon(
-                  icon: const Icon(Icons.my_location),
-                  label: const Text('Use Current Location'),
-                  onPressed: _getCurrentLocation,
-                  style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(40)),
-                ),
+            icon: const Icon(Icons.my_location),
+            label: const Text('Use Current Location'),
+            onPressed: _getCurrentLocation,
+            style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(40)),
+          ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _saveData,
@@ -339,9 +337,9 @@ class _DataPageState extends State<DataPage> {
             if (events.isEmpty) {
               return const Center(
                   child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Text('No events recorded yet.'),
-              ));
+                    padding: EdgeInsets.all(20.0),
+                    child: Text('No events recorded yet.'),
+                  ));
             }
             return ListView.builder(
               shrinkWrap: true,
@@ -356,7 +354,7 @@ class _DataPageState extends State<DataPage> {
                   print("Error parsing timestamp: ${event.timestamp}");
                 }
                 final formattedDate =
-                    DateFormat.yMd().add_Hms().format(dateTimeLocal);
+                DateFormat.yMd().add_Hms().format(dateTimeLocal);
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   child: ListTile(

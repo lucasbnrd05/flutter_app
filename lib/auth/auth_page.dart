@@ -105,13 +105,13 @@ class _AuthPageState extends State<AuthPage> {
         user = await _authService.signInWithEmailPassword(email, password);
         if (user == null)
           errorMessage = _getFirebaseAuthErrorMessage(FirebaseAuthException(
-              code: 'invalid-credential')); // Use helper for generic fail
+              code: 'invalid-credential'));
       } else {
         print("[AuthPage] Attempting Email Sign-Up...");
         user = await _authService.signUpWithEmailPassword(email, password);
         if (user == null)
           errorMessage =
-              "Sign up failed. Please check details or try a different email."; // Generic signup fail
+          "Sign up failed. Please check details or try a different email.";
       }
     } on FirebaseAuthException catch (e) {
       print("[AuthPage] FirebaseAuthException during Email Auth: ${e.code}");
@@ -199,40 +199,40 @@ class _AuthPageState extends State<AuthPage> {
                   duration: const Duration(milliseconds: 300),
                   child: _isLoadingGoogle
                       ? const Padding(
-                          key: ValueKey('google_loader'),
-                          padding: EdgeInsets.symmetric(vertical: 14.0),
-                          child: Center(
-                              child: SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 3))),
-                        )
+                    key: ValueKey('google_loader'),
+                    padding: EdgeInsets.symmetric(vertical: 14.0),
+                    child: Center(
+                        child: SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 3))),
+                  )
                       : ElevatedButton.icon(
-                          key: const ValueKey('google_button'),
-                          icon: Image.asset('assets/google_logo.png',
-                              height: 22.0,
-                              errorBuilder: (c, e, s) => const Icon(
-                                  Icons.g_mobiledata_outlined,
-                                  size: 28,
-                                  color: Colors.redAccent)),
-                          label: const Text('Continue with Google'),
-                          onPressed: isLoading ? null : _signInWithGoogle,
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.grey[850],
-                            backgroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 50),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 0, horizontal: 16),
-                            textStyle: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(color: Colors.grey.shade300),
-                            ),
-                            elevation: 1,
-                          ),
-                        ),
+                    key: const ValueKey('google_button'),
+                    icon: Image.asset('assets/google_logo.png',
+                        height: 22.0,
+                        errorBuilder: (c, e, s) => const Icon(
+                            Icons.g_mobiledata_outlined,
+                            size: 28,
+                            color: Colors.redAccent)),
+                    label: const Text('Continue with Google'),
+                    onPressed: isLoading ? null : _signInWithGoogle,
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.grey[850],
+                      backgroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 50),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 0, horizontal: 16),
+                      textStyle: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      elevation: 1,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 25),
                 if (!isLoading)
@@ -241,7 +241,7 @@ class _AuthPageState extends State<AuthPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child:
-                          Text("OR", style: TextStyle(color: Colors.grey[600])),
+                      Text("OR", style: TextStyle(color: Colors.grey[600])),
                     ),
                     const Expanded(child: Divider()),
                   ]),
@@ -290,58 +290,58 @@ class _AuthPageState extends State<AuthPage> {
                   },
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) =>
-                      isLoading ? null : _submitEmailForm(),
+                  isLoading ? null : _submitEmailForm(),
                 ),
                 const SizedBox(height: 25),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: _isLoadingEmail
                       ? const Padding(
-                          key: ValueKey('email_loader'),
-                          padding: EdgeInsets.symmetric(vertical: 14.0),
-                          child: Center(
-                              child: SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 3))),
-                        )
+                    key: ValueKey('email_loader'),
+                    padding: EdgeInsets.symmetric(vertical: 14.0),
+                    child: Center(
+                        child: SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 3))),
+                  )
                       : Column(
-                          key: const ValueKey('email_buttons'),
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            ElevatedButton(
-                              onPressed: isLoading ? null : _submitEmailForm,
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 0, horizontal: 16),
-                                textStyle: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              child: Text(_isLoginMode
-                                  ? 'Sign In with Email'
-                                  : 'Sign Up with Email'),
-                            ),
-                            const SizedBox(height: 10),
-                            TextButton(
-                              onPressed: isLoading
-                                  ? null
-                                  : () {
-                                      setState(() {
-                                        _isLoginMode = !_isLoginMode;
-                                      });
-                                      _formKey.currentState?.reset();
-                                    },
-                              style: TextButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10)),
-                              child: Text(_isLoginMode
-                                  ? "Don't have an account? Sign Up"
-                                  : "Already have an account? Sign In"),
-                            ),
-                          ],
+                    key: const ValueKey('email_buttons'),
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ElevatedButton(
+                        onPressed: isLoading ? null : _submitEmailForm,
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 0, horizontal: 16),
+                          textStyle: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
+                        child: Text(_isLoginMode
+                            ? 'Sign In with Email'
+                            : 'Sign Up with Email'),
+                      ),
+                      const SizedBox(height: 10),
+                      TextButton(
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                          setState(() {
+                            _isLoginMode = !_isLoginMode;
+                          });
+                          _formKey.currentState?.reset();
+                        },
+                        style: TextButton.styleFrom(
+                            padding:
+                            const EdgeInsets.symmetric(vertical: 10)),
+                        child: Text(_isLoginMode
+                            ? "Don't have an account? Sign Up"
+                            : "Already have an account? Sign In"),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 10),
               ],

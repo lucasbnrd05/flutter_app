@@ -1,7 +1,6 @@
 // lib/themes.dart
 import 'package:flutter/material.dart';
 
-// --- Thème Clair ---
 final ThemeData lightTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
@@ -27,19 +26,15 @@ final ThemeData lightTheme = ThemeData(
   ),
 );
 
-// --- Thème Sombre ---
 final ThemeData darkTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
   colorScheme: ColorScheme.fromSeed(
     seedColor: Colors.green,
     brightness: Brightness.dark,
-    // Note: Pour une meilleure lisibilité en sombre, envisage de surcharger
-    // background, surface, onBackground, onSurface, primary, onPrimary etc. ici.
-    // Ex: background: Colors.grey[900], surface: Colors.grey[850], etc.
   ),
   appBarTheme: AppBarTheme(
-    backgroundColor: Colors.grey[900], // AppBar sombre
+    backgroundColor: Colors.grey[900],
     foregroundColor: Colors.white,
   ),
   cardTheme: CardTheme(
@@ -48,10 +43,9 @@ final ThemeData darkTheme = ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12.0),
     ),
-    // color: Colors.grey[800], // Fond de carte plus sombre
   ),
   drawerTheme: const DrawerThemeData(),
   listTileTheme: ListTileThemeData(
-    iconColor: Colors.greenAccent[100], // Icônes plus claires
+    iconColor: Colors.greenAccent[100],
   ),
 );
