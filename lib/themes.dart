@@ -5,22 +5,14 @@ import 'package:flutter/material.dart';
 final ThemeData lightTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
-  // Utilise ColorScheme.fromSeed pour une palette harmonieuse basée sur le vert
   colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.green, // Ta couleur principale
+    seedColor: Colors.green,
     brightness: Brightness.light,
-    // Tu peux affiner des couleurs spécifiques si besoin:
-    // primary: Colors.green,
-    // secondary: Colors.lightGreen,
-    // background: Colors.white,
-    // surface: Colors.grey[100], // Pour les Cards, etc.
-    // onBackground: Colors.black, // Texte sur le fond principal
-    // onSurface: Colors.black87, // Texte sur les surfaces (Cards)
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: Colors.green, // AppBar en vert
-    foregroundColor: Colors.white, // Titre et icônes en blanc
-    elevation: 4.0, // Petite ombre
+    backgroundColor: Colors.green,
+    foregroundColor: Colors.white,
+    elevation: 4.0,
   ),
   cardTheme: CardTheme(
     elevation: 2.0,
@@ -28,38 +20,27 @@ final ThemeData lightTheme = ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12.0),
     ),
-    // color: Colors.green.shade50, // Légère teinte verte pour les cartes ? Optionnel
   ),
-  drawerTheme: DrawerThemeData(
-    // backgroundColor: Colors.grey[50], // Fond du drawer clair
-  ),
+  drawerTheme: const DrawerThemeData(),
   listTileTheme: const ListTileThemeData(
-    iconColor: Colors.green, // Icônes dans le drawer
+    iconColor: Colors.green,
   ),
-  // Définis d'autres styles si nécessaire (boutons, etc.)
 );
 
 // --- Thème Sombre ---
 final ThemeData darkTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
-  // Utilise ColorScheme.fromSeed pour le thème sombre aussi
   colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.green, // Garde la même base pour la cohérence
+    seedColor: Colors.green,
     brightness: Brightness.dark,
-    // Affine si besoin, EXTRÊMEMENT IMPORTANT pour la lisibilité
-    // background: Colors.grey[900], // Fond principal très sombre
-    // surface: Colors.grey[850], // Fond des cartes un peu moins sombre
-    // onBackground: Colors.white, // Texte sur fond principal (essentiel)
-    // onSurface: Colors.white, // Texte sur les cartes (essentiel)
-    // primary: Colors.greenAccent[100], // Une version plus claire du vert pour le sombre
-    // onPrimary: Colors.black, // Texte sur les éléments primaires (boutons verts)
-    // primaryContainer: Colors.green[900], // Conteneur associé au primaire
-    // onPrimaryContainer: Colors.greenAccent[100], // Texte sur ce conteneur
+    // Note: Pour une meilleure lisibilité en sombre, envisage de surcharger
+    // background, surface, onBackground, onSurface, primary, onPrimary etc. ici.
+    // Ex: background: Colors.grey[900], surface: Colors.grey[850], etc.
   ),
   appBarTheme: AppBarTheme(
     backgroundColor: Colors.grey[900], // AppBar sombre
-    foregroundColor: Colors.white, // Titre et icônes blancs
+    foregroundColor: Colors.white,
   ),
   cardTheme: CardTheme(
     elevation: 2.0,
@@ -67,13 +48,10 @@ final ThemeData darkTheme = ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12.0),
     ),
-    // color: Colors.grey[800], // Couleur de carte pour le thème sombre
+    // color: Colors.grey[800], // Fond de carte plus sombre
   ),
-  drawerTheme: DrawerThemeData(
-    // backgroundColor: Colors.grey[850], // Fond du drawer sombre
-  ),
+  drawerTheme: const DrawerThemeData(),
   listTileTheme: ListTileThemeData(
-    iconColor: Colors.greenAccent[100], // Icônes plus claires dans le drawer sombre
+    iconColor: Colors.greenAccent[100], // Icônes plus claires
   ),
-  // Définis d'autres styles si nécessaire
 );
