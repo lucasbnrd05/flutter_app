@@ -1,7 +1,6 @@
 // lib/models/latest_measurement.dart
 import 'package:latlong2/latlong.dart';
 
-// Modèle simple pour parser UN résultat de /v3/parameters/{id}/latest
 class LatestMeasurementResult {
   final DateTime datetimeUtc;
   final double value;
@@ -74,49 +73,48 @@ class LatestMeasurementResult {
   }
 }
 
-// *** MAP STATIQUE ID -> INFO (AVEC DESCRIPTIONS AJOUTÉES) ***
 const Map<int, Map<String, String>> PARAMETER_ID_TO_INFO = {
   1: {
     'name': 'pm10',
     'unit': 'µg/m³',
     'description':
-        'Particulate Matter < 10µm: Dust, pollen, mold spores. Can irritate eyes, nose, throat.'
+    'Particulate Matter < 10µm: Dust, pollen, mold spores. Can irritate eyes, nose, throat.'
   },
   2: {
     'name': 'pm25',
     'unit': 'µg/m³',
     'description':
-        'Fine Particulate Matter < 2.5µm: Combustion particles, organic compounds. Can penetrate deep into lungs.'
+    'Fine Particulate Matter < 2.5µm: Combustion particles, organic compounds. Can penetrate deep into lungs.'
   },
   3: {
     'name': 'o3',
     'unit': 'µg/m³',
     'description':
-        'Ozone (mass): Ground-level ozone, a major component of smog. Irritates airways.'
+    'Ozone (mass): Ground-level ozone, a major component of smog. Irritates airways.'
   },
   4: {
     'name': 'co',
     'unit': 'µg/m³',
     'description':
-        'Carbon Monoxide (mass): Toxic gas from incomplete combustion. Reduces oxygen in blood.'
+    'Carbon Monoxide (mass): Toxic gas from incomplete combustion. Reduces oxygen in blood.'
   },
   5: {
     'name': 'no2',
     'unit': 'µg/m³',
     'description':
-        'Nitrogen Dioxide (mass): From traffic and combustion. Irritates lungs, contributes to smog/acid rain.'
+    'Nitrogen Dioxide (mass): From traffic and combustion. Irritates lungs, contributes to smog/acid rain.'
   },
   6: {
     'name': 'so2',
     'unit': 'µg/m³',
     'description':
-        'Sulfur Dioxide (mass): From burning fossil fuels. Irritates respiratory tract, contributes to acid rain.'
+    'Sulfur Dioxide (mass): From burning fossil fuels. Irritates respiratory tract, contributes to acid rain.'
   },
   7: {
     'name': 'no2',
     'unit': 'ppm',
     'description':
-        'Nitrogen Dioxide (volume): Volume concentration. Irritates lungs.'
+    'Nitrogen Dioxide (volume): Volume concentration. Irritates lungs.'
   },
   8: {
     'name': 'co',
@@ -127,7 +125,7 @@ const Map<int, Map<String, String>> PARAMETER_ID_TO_INFO = {
     'name': 'so2',
     'unit': 'ppm',
     'description':
-        'Sulfur Dioxide (volume): Volume concentration. Respiratory irritant.'
+    'Sulfur Dioxide (volume): Volume concentration. Respiratory irritant.'
   },
   10: {
     'name': 'o3',
@@ -143,7 +141,7 @@ const Map<int, Map<String, String>> PARAMETER_ID_TO_INFO = {
     'name': 'pm1',
     'unit': 'µg/m³',
     'description':
-        'Ultrafine Particulate Matter < 1µm: Very small particles, can enter bloodstream.'
+    'Ultrafine Particulate Matter < 1µm: Very small particles, can enter bloodstream.'
   },
   35: {
     'name': 'no',
@@ -164,7 +162,7 @@ const Map<int, Map<String, String>> PARAMETER_ID_TO_INFO = {
     'name': 'um003',
     'unit': 'particles/cm³',
     'description':
-        'Particle Count (> 0.3µm): Number of particles larger than 0.3 micrometers.'
+    'Particle Count (> 0.3µm): Number of particles larger than 0.3 micrometers.'
   },
   19840: {
     'name': 'nox',
@@ -176,5 +174,4 @@ const Map<int, Map<String, String>> PARAMETER_ID_TO_INFO = {
     'unit': 'µg/m³',
     'description': 'Nitrogen Monoxide (mass): Precursor pollutant.'
   },
-  // Ajouter d'autres IDs et descriptions si nécessaire
 };

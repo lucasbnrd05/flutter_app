@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 class LoginRequiredWidget extends StatelessWidget {
-  final String featureName; // Le nom de la fonctionnalité bloquée
+  final String featureName;
 
   const LoginRequiredWidget({
     super.key,
@@ -21,7 +21,7 @@ class LoginRequiredWidget extends StatelessWidget {
                 size: 60, color: Theme.of(context).colorScheme.secondary),
             const SizedBox(height: 25),
             Text(
-              'You must be logged in with Google or Email to access "$featureName".', // Message dynamique
+              'You must be logged in with Google or Email to access "$featureName".',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 17, height: 1.4),
             ),
@@ -30,13 +30,11 @@ class LoginRequiredWidget extends StatelessWidget {
               icon: const Icon(Icons.login),
               label: const Text("Go to Login / Sign Up"),
               onPressed: () {
-                // Navigue vers la page d'authentification
-                // Assure-toi que la route '/auth' est définie dans main.dart
                 Navigator.pushNamed(context, '/auth');
               },
               style: ElevatedButton.styleFrom(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
             )
           ],
         ),

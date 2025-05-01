@@ -12,8 +12,6 @@ class AuthService {
     return _firebaseAuth.currentUser;
   }
 
-  // signInAnonymously retiré
-
   Future<User?> signInWithGoogle() async {
     print("[AuthService] Attempting Google Sign-In...");
     try {
@@ -25,7 +23,7 @@ class AuthService {
       print(
           "[AuthService] Google user obtained, getting authentication details...");
       final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      await googleUser.authentication;
       print("[AuthService] Creating Firebase credential with Google tokens...");
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -33,14 +31,14 @@ class AuthService {
       );
       print("[AuthService] Signing in to Firebase with Google credential...");
       final UserCredential userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
+      await _firebaseAuth.signInWithCredential(credential);
       print(
           "[AuthService] Firebase Google Sign-In successful: UID ${userCredential.user?.uid}");
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       print(
           "[AuthService] ERROR Firebase Google Sign-In: ${e.code} - ${e.message}");
-      throw e; // Relance pour traitement dans l'UI
+      throw e;
     } catch (e) {
       print("[AuthService] UNEXPECTED ERROR during Google Sign-In: $e");
       throw Exception("An unexpected error occurred during Google Sign-In.");
@@ -53,7 +51,7 @@ class AuthService {
     try {
       final bool isGoogleUser = _firebaseAuth.currentUser?.providerData.any(
               (userInfo) =>
-                  userInfo.providerId == GoogleAuthProvider.PROVIDER_ID) ??
+          userInfo.providerId == GoogleAuthProvider.PROVIDER_ID) ??
           false;
       print(
           "[AuthService] Signing out user ${userIdBeforeSignOut ?? 'unknown'} (was anonymous: $wasAnonymous, was Google: $isGoogleUser)...");
@@ -100,7 +98,6 @@ class AuthService {
       );
       print(
           "[AuthService] Email sign-up successful: UID ${userCredential.user?.uid}");
-      // Optionnel: Envoyer un email de vérification
       // await userCredential.user?.sendEmailVerification();
       return userCredential.user;
     } on FirebaseAuthException catch (e) {

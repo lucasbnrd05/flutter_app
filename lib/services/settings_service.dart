@@ -9,7 +9,6 @@ class SettingsService {
   static String? _getCurrentUserId() {
     final user = FirebaseAuth.instance.currentUser;
     final uid = (user != null && !user.isAnonymous) ? user.uid : null;
-    // print("[SettingsService _getCurrentUserId] UID: $uid"); // Déjà présent
     return uid;
   }
 
@@ -30,10 +29,10 @@ class SettingsService {
       return null;
     }
     print(
-        '[SettingsService getNytApiKey] ====> Attempting to get String for key: $userKey'); // LOG AJOUTÉ
+        '[SettingsService getNytApiKey] ====> Attempting to get String for key: $userKey');
     final key = prefs.getString(userKey);
     print(
-        '[SettingsService getNytApiKey] <==== Retrieved value for key $userKey: ${key ?? "null"}'); // LOG AJOUTÉ (modifié)
+        '[SettingsService getNytApiKey] <==== Retrieved value for key $userKey: ${key ?? "null"}');
     return key;
   }
 
@@ -47,20 +46,20 @@ class SettingsService {
     }
     final trimmedKey = key.trim();
     print(
-        '[SettingsService saveNytApiKey] Attempting action for userKey $userKey with value: "$trimmedKey"'); // LOG AJOUTÉ
+        '[SettingsService saveNytApiKey] Attempting action for userKey $userKey with value: "$trimmedKey"');
 
     if (trimmedKey.isNotEmpty) {
       print(
-          '[SettingsService saveNytApiKey] ====> Setting String for key: $userKey'); // LOG AJOUTÉ
+          '[SettingsService saveNytApiKey] ====> Setting String for key: $userKey');
       await prefs.setString(userKey, trimmedKey);
       print(
-          '[SettingsService saveNytApiKey] <==== SetString successful.'); // LOG AJOUTÉ
+          '[SettingsService saveNytApiKey] <==== SetString successful.');
     } else {
       print(
-          '[SettingsService saveNytApiKey] ====> Removing key: $userKey (due to empty input)'); // LOG AJOUTÉ
+          '[SettingsService saveNytApiKey] ====> Removing key: $userKey (due to empty input)');
       final bool removed = await prefs.remove(userKey);
       print(
-          '[SettingsService saveNytApiKey] <==== Remove action result: $removed'); // LOG AJOUTÉ
+          '[SettingsService saveNytApiKey] <==== Remove action result: $removed');
     }
   }
 
@@ -73,10 +72,10 @@ class SettingsService {
       return null;
     }
     print(
-        '[SettingsService getOpenAqApiKey] ====> Attempting to get String for key: $userKey'); // LOG AJOUTÉ
+        '[SettingsService getOpenAqApiKey] ====> Attempting to get String for key: $userKey');
     final key = prefs.getString(userKey);
     print(
-        '[SettingsService getOpenAqApiKey] <==== Retrieved value for key $userKey: ${key ?? "null"}'); // LOG AJOUTÉ (modifié)
+        '[SettingsService getOpenAqApiKey] <==== Retrieved value for key $userKey: ${key ?? "null"}');
     return key;
   }
 
@@ -90,20 +89,20 @@ class SettingsService {
     }
     final trimmedKey = key.trim();
     print(
-        '[SettingsService saveOpenAqApiKey] Attempting action for userKey $userKey with value: "$trimmedKey"'); // LOG AJOUTÉ
+        '[SettingsService saveOpenAqApiKey] Attempting action for userKey $userKey with value: "$trimmedKey"');
 
     if (trimmedKey.isNotEmpty) {
       print(
-          '[SettingsService saveOpenAqApiKey] ====> Setting String for key: $userKey'); // LOG AJOUTÉ
+          '[SettingsService saveOpenAqApiKey] ====> Setting String for key: $userKey');
       await prefs.setString(userKey, trimmedKey);
       print(
-          '[SettingsService saveOpenAqApiKey] <==== SetString successful.'); // LOG AJOUTÉ
+          '[SettingsService saveOpenAqApiKey] <==== SetString successful.');
     } else {
       print(
-          '[SettingsService saveOpenAqApiKey] ====> Removing key: $userKey (due to empty input)'); // LOG AJOUTÉ
+          '[SettingsService saveOpenAqApiKey] ====> Removing key: $userKey (due to empty input)');
       final bool removed = await prefs.remove(userKey);
       print(
-          '[SettingsService saveOpenAqApiKey] <==== Remove action result: $removed'); // LOG AJOUTÉ
+          '[SettingsService saveOpenAqApiKey] <==== Remove action result: $removed');
     }
   }
 
@@ -117,12 +116,12 @@ class SettingsService {
     final nytUserKey = '$_nytApiKeyPrefix$userId';
     final openAqUserKey = '$_openAqApiKeyPrefix$userId';
     print(
-        '[SettingsService clearUserSettings] ====> Attempting to remove keys: $nytUserKey, $openAqUserKey'); // LOG AJOUTÉ
+        '[SettingsService clearUserSettings] ====> Attempting to remove keys: $nytUserKey, $openAqUserKey');
     await Future.wait([
       prefs.remove(nytUserKey),
       prefs.remove(openAqUserKey),
     ]);
     print(
-        '[SettingsService clearUserSettings] <==== Finished removing keys for user $userId.'); // LOG AJOUTÉ
+        '[SettingsService clearUserSettings] <==== Finished removing keys for user $userId.');
   }
 }

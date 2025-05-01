@@ -1,21 +1,23 @@
 # Developer Setup Guide - GreenWatch
 
-This guide details the steps required to set up the GreenWatch local development environment after cloning the repository. Certain configurations, particularly API keys, are intentionally excluded from version control (via `.gitignore`) for security reasons and must be configured manually.
+This guide details the steps required to set up the GreenWatch local development environment after cloning the repository. Certain configurations, particularly API keys, are managed within the application's settings screen after user login and are stored securely per user using SharedPreferences.
 
 ## Prerequisites
 
 Before you begin, ensure you have installed:
 
 1.  **Flutter SDK:** Follow the official installation instructions at [flutter.dev](https://flutter.dev/docs/get-started/install).
-2.  **A New York Times Developer Account:** You will need an API key for the **Article Search API**. Create an account and an application at [https://developer.nytimes.com/](https://developer.nytimes.com/).
+2.  **A New York Times Developer Account:** You will need an API key enabled for the **Article Search API**. Create an account and an application at [https://developer.nytimes.com/](https://developer.nytimes.com/).
+3.  **An OpenAQ Platform Account:** You will need an API key for accessing air quality data. Register and obtain a key at [https://openaq.org/](https://openaq.org/) (usually involves requesting one via their platform/contact).
 
 ## Initial Setup Steps
 
 1.  **Clone the Repository:**
     ```bash
-    git clone flutter_app
-    cd flutter_app 
+    git clone https://github.com/lucasbnrd05/flutter_app.git 
+    cd flutter_app
     ```
+    *(Note: Assurez-vous que l'URL du clone est correcte si elle a changé)*
 
 2.  **Install Flutter Dependencies:**
     This command downloads all the necessary packages listed in `pubspec.yaml`.
@@ -23,26 +25,31 @@ Before you begin, ensure you have installed:
     flutter pub get
     ```
 
-3.  **Configure the NYT API Key (Crucial Step):**
-    The file containing the API key (`lib/config/api_config.dart`) is not included in the Git repository. You must create it manually:
+3.  **Configure Firebase (if not already done for your environment):**
+    This project uses Firebase for authentication. Follow the FlutterFire CLI instructions to configure the project for your target platforms (Android, iOS, Web): [FlutterFire Overview](https://firebase.google.com/docs/flutter/overview)
+    This usually involves running `flutterfire configure` and selecting your Firebase project.
 
-    *   **Create the `config` directory** inside the `lib` directory if it doesn't already exist.
-    *   **Create a file named `api_config.dart`** inside `lib/config/`.
-    *   **Add the following content** to `lib/config/api_config.dart`, replacing `"YOUR_PERSONAL_NYT_API_KEY_HERE"` with your actual NYT API key obtained in the prerequisites:
+4.  **Run the Application and Configure API Keys:**
+    API keys are **not** stored in the code repository for security. They must be entered into the application's Settings screen *after logging in*.
 
-        ```dart
-        // lib/config/api_config.dart
-        // WARNING: This file is in .gitignore and must NOT be committed.
-        // It contains sensitive information.
-
-        const String nytApiKey = "YOUR_PERSONAL_NYT_API_KEY_HERE";
+    *   Ensure you have a running device (emulator, simulator, or physical device) connected and recognized by Flutter (`flutter devices`).
+    *   Run the application:
+        ```bash
+        flutter run
         ```
-
-    *   **Never commit this file!** The `.gitignore` file is already configured to ignore it.
+    *   **Log In:** Use the Google Sign-In option or create an account using Email/Password on the authentication screen (`/auth`). Accessing the Settings page requires a non-anonymous login.
+    *   **Navigate to Settings:** Open the drawer menu and select "Settings".
+    *   **Enter API Keys:**
+        *   In the "New York Times (News)" section, paste the NYT API key you obtained.
+        *   In the "OpenAQ (Air Quality)" section, paste the OpenAQ API key you obtained.
+        *   Press the "Save" button for each key.
+    *   The keys are now stored securely for your logged-in user account and will be used for subsequent API calls.
 
 ## Running the Application
 
-1.  Ensure you have a running device (emulator, simulator, or physical device) connected and recognized by Flutter (`flutter devices`).
+Once the initial setup and API key configuration within the app are complete:
+
+1.  Ensure you have a running device connected (`flutter devices`).
 2.  Run the application from the project root:
     ```bash
     flutter run
@@ -50,23 +57,27 @@ Before you begin, ensure you have installed:
 
 ## Project Structure Overview
 
-*   `lib/config/`: Contains sensitive configuration files (e.g., API keys). Ignored by Git.
-*   `lib/models/`: Defines data structures (e.g., `Article`).
-*   `lib/services/`: Contains logic for interacting with external APIs (e.g., `NytApiService`).
-*   `lib/providers/` or `lib/state/`: (If applicable) Manages application state (e.g., `ThemeProvider`).
-*   `lib/ux_unit/` or `lib/widgets/`: Contains reusable UI components (e.g., `CustomDrawer`, `ArticleCard`).
-*   `lib/pages/` or `lib/screens/`: Contains the main application screens (e.g., `HomePage`, `SettingsPage`).
-*   `lib/themes/`: Defines application themes.
-*   `lib/main.dart`: The application's entry point.
-*   `assets/`: Contains static resources (images, fonts, etc.).
+*   `lib/`: Main application source code.
+    *   `auth/`: Authentication related screens and logic (`auth_page.dart`).
+    *   `models/`: Data structures (`article.dart`, `event.dart`, `latest_measurement.dart`).
+    *   `services/`: Logic for interacting with external APIs and local database (`nyt_service.dart`, `air_quality_service.dart`, `auth_service.dart`, `database_helper.dart`, `settings_service.dart`).
+    *   `ux_unit/`: Reusable UI components (`custom_drawer.dart`, `login_required_widget.dart`).
+    *   `themes.dart`: Application themes (light and dark).
+    *   `theme_provider.dart`: Manages theme state.
+    *   `main.dart`: Application entry point.
+    *   `home.dart`, `map.dart`, `settings.dart`, `data.dart`, `about.dart`, `event_detail_page.dart`: Main application screens/pages.
+*   `assets/`: Static resources (images, fonts, etc.).
+*   `firebase_options.dart`: Firebase configuration file (generated by FlutterFire).
+*   `pubspec.yaml`: Project dependencies and metadata.
 
 ## Common Troubleshooting
 
-*   **NYT API Errors (e.g., 401 Unauthorized, 403 Forbidden, 429 Too Many Requests):**
-    *   Double-check that the API key in `lib/config/api_config.dart` is correct and matches the one from the NYT Developer portal exactly.
-    *   Ensure the "Article Search API" is enabled for your application on the NYT portal.
-    *   Check if you've hit the NYT API rate limits (free tier).
-*   **Network Errors:** Ensure your machine has an active internet connection.
+*   **API Errors (e.g., 401 Unauthorized, 403 Forbidden, 429 Too Many Requests):**
+    *   **NYT:** Double-check that the API key entered in the app's **Settings page** is correct and matches the one from the NYT Developer portal exactly. Ensure the "Article Search API" is enabled for your key. Check NYT rate limits.
+    *   **OpenAQ:** Double-check that the API key entered in the app's **Settings page** is correct and active on the OpenAQ platform. Check OpenAQ rate limits.
+*   **Login Required Message:** Ensure you are logged in with a Google or Email account (not anonymous) to access features like Settings or Data Reporting.
+*   **Firebase Errors:** Ensure your Firebase project is correctly set up for the platform you are running on (Android `google-services.json`, iOS `GoogleService-Info.plist`, Web configuration). Run `flutterfire configure` again if needed. Check Firebase console settings (Authentication enabled, etc.).
+*   **Network Errors:** Ensure your machine/device has an active internet connection.
 *   **Dependency Issues:** If you encounter errors related to packages, try running:
     ```bash
     flutter clean

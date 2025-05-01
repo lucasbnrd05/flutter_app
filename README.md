@@ -21,12 +21,9 @@ GreenWatch serves as a proactive environmental monitoring solution that aligns w
 
 GreenWatch is more than just an app; it's a commitment to protecting the planet and enhancing disaster preparedness. Stay connected, stay informed, and be a part of the change with GreenWatch.
 
-
 ## Participants
 - **Lucas BERNARDEAU** (lucas.bernardeau@alumnos.upm.es)
 - **Nathan VANATHATHAN** (nathan.vanathathan@alumnos.upm.es)
 - **Dina DIDOUCHE** (dina.didouche@alumnos.upm.es)
 
 **Workload distribution**: (33% / 33% / 33%).
-
-

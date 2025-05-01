@@ -1,14 +1,11 @@
 // lib/event_detail_page.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/event.dart'; // Importe le modèle Event
+import '../models/event.dart';
 
-// Optionnel: Pour afficher une mini-carte statique plus tard
-// import 'package:flutter_map/flutter_map.dart';
-// import 'package:latlong2/latlong.dart';
 
 class EventDetailPage extends StatelessWidget {
-  final Event event; // Reçoit l'objet Event complet
+  final Event event;
 
   const EventDetailPage({super.key, required this.event});
 
@@ -16,8 +13,7 @@ class EventDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Formatte la date/heure pour l'affichage
-    DateTime dateTimeLocal = DateTime.now(); // Default
+    DateTime dateTimeLocal = DateTime.now();
     try {
       dateTimeLocal = DateTime.parse(event.timestamp).toLocal();
     } catch (e) {
@@ -25,26 +21,26 @@ class EventDetailPage extends StatelessWidget {
     }
     final formattedDate = DateFormat.yMMMMEEEEd()
         .add_jms()
-        .format(dateTimeLocal); // Format plus complet
+        .format(dateTimeLocal);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Event Details: ${event.type}'), // Titre avec le type
+        title: Text('Event Details: ${event.type}'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment:
-              CrossAxisAlignment.start, // Aligne le texte à gauche
+          CrossAxisAlignment.start,
           children: [
             _buildDetailItem(
               context: context,
               icon: _getIconForType(
-                  event.type), // Utilise le même helper que DataPage
+                  event.type),
               label: 'Event Type',
               value: event.type,
               iconColor: _getColorForType(
-                  event.type, theme), // Optionnel: couleur icône
+                  event.type, theme),
             ),
             const Divider(height: 20),
             _buildDetailItem(
@@ -58,31 +54,25 @@ class EventDetailPage extends StatelessWidget {
               context: context,
               icon: Icons.calendar_today_outlined,
               label: 'Reported Time',
-              value: formattedDate, // Date/heure formatée
+              value: formattedDate,
             ),
             const Divider(height: 20),
             _buildDetailItem(
               context: context,
               icon: Icons.location_on_outlined,
               label: 'Coordinates',
-              // Affiche les coordonnées si elles sont valides (non 0.0), sinon un message
               value: (event.latitude != 0.0 || event.longitude != 0.0)
                   ? 'Lat: ${event.latitude.toStringAsFixed(5)}, Lon: ${event.longitude.toStringAsFixed(5)}'
                   : 'Coordinates not available from description.',
             ),
             const SizedBox(height: 24),
 
-            // --- Optionnel: Mini-carte statique ---
-            // if (event.latitude != 0.0 || event.longitude != 0.0)
-            //   _buildMiniMap(context),
-            // --- Fin Optionnel ---
           ],
         ),
       ),
     );
   }
 
-  // Widget helper pour afficher une ligne de détail (Icône, Label, Valeur)
   Widget _buildDetailItem({
     required BuildContext context,
     required IconData icon,
@@ -104,7 +94,7 @@ class EventDetailPage extends StatelessWidget {
                 label,
                 style: theme.textTheme.titleSmall?.copyWith(
                   color: theme.textTheme.bodySmall
-                      ?.color, // Couleur plus discrète pour le label
+                      ?.color,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -117,47 +107,7 @@ class EventDetailPage extends StatelessWidget {
     );
   }
 
-  // --- Optionnel: Construction de la mini-carte ---
-  // Widget _buildMiniMap(BuildContext context) {
-  //   return Container(
-  //     height: 200,
-  //     clipBehavior: Clip.hardEdge, // Empêche le débordement
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(12),
-  //       border: Border.all(color: Theme.of(context).dividerColor),
-  //     ),
-  //     child: FlutterMap(
-  //       options: MapOptions(
-  //         initialCenter: LatLng(event.latitude, event.longitude),
-  //         initialZoom: 15.0, // Zoom plus rapproché
-  //         interactionOptions: const InteractionOptions(flags: InteractiveFlag.none), // Non interactive
-  //       ),
-  //       children: [
-  //         TileLayer(
-  //           urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-  //           userAgentPackageName: 'com.example.greenwatch',
-  //         ),
-  //         MarkerLayer(
-  //           markers: [
-  //             Marker(
-  //               width: 40.0, height: 40.0,
-  //               point: LatLng(event.latitude, event.longitude),
-  //               child: Icon(
-  //                 _getIconForType(event.type),
-  //                 color: _getColorForType(event.type, Theme.of(context)),
-  //                 size: 30.0,
-  //                 shadows: const [Shadow(color: Colors.black54, blurRadius: 4)]
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-  // --- Fin Optionnel ---
 
-  // Helper pour obtenir l'icône (copié/collé depuis DataPage)
   IconData _getIconForType(String? type) {
     switch (type) {
       case 'Flood':
@@ -179,7 +129,6 @@ class EventDetailPage extends StatelessWidget {
     }
   }
 
-  // Optionnel: Helper pour obtenir la couleur associée au type
   Color _getColorForType(String? type, ThemeData theme) {
     switch (type) {
       case 'Flood':
@@ -197,7 +146,7 @@ class EventDetailPage extends StatelessWidget {
       case 'Other (specify in position)':
         return Colors.grey.shade600;
       default:
-        return theme.colorScheme.secondary; // Couleur par défaut
+        return theme.colorScheme.secondary;
     }
   }
 }

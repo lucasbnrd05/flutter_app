@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// Services et Modèles
 import '../models/event.dart';
 import '../models/latest_measurement.dart';
 import '../services/air_quality_service.dart';
@@ -28,7 +27,7 @@ class _MapPageState extends State<MapPage> {
   final MapController _mapController = MapController();
   final double _minZoom = 2.0;
   final double _maxZoom = 18.0;
-  final LatLng _defaultCenter = const LatLng(46.6, 2.2); // Centre France/Europe
+  final LatLng _defaultCenter = const LatLng(46.6, 2.2);
   final double _defaultZoom = 5.0;
 
   final AirQualityService _aqService = AirQualityService();
@@ -37,12 +36,12 @@ class _MapPageState extends State<MapPage> {
   String? _aqError;
   bool _isApiKeyMissing = false;
 
-  String _selectedParameterId = '3'; // O3 par défaut
+  String _selectedParameterId = '3';
   String _selectedParameterName = 'O3';
   String _selectedParameterDescription = '';
 
   final Map<String, String> _availableParameters = {
-    '3': 'O₃ (µg/m³)', // Ozone par défaut
+    '3': 'O₃ (µg/m³)',
     '2': 'PM2.5 (µg/m³)',
     '1': 'PM10 (µg/m³)',
     '4': 'CO (µg/m³)',
@@ -63,9 +62,7 @@ class _MapPageState extends State<MapPage> {
   LatLng? _mapInitialCenter;
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
-  // --- NOUVEAU: Variable d'état pour la polyline ---
   Polyline? _userToLastEventPolyline;
-  // --- FIN NOUVEAU ---
 
   @override
   void initState() {
@@ -75,7 +72,6 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _updateSelectedParameterInfo(String id) {
-    // Identique
     final info = PARAMETER_ID_TO_INFO[int.tryParse(id)];
     setState(() {
       _selectedParameterId = id;
@@ -88,22 +84,19 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _initializeMapAndFetchData() async {
-    // Récupère la position initiale MAIS ne centre pas encore
     bool locationObtained = await _getCurrentLocation(centerMap: false);
     LatLng initialCenter = _defaultCenter;
     double initialZoom = _defaultZoom;
 
     if (locationObtained && _currentPosition != null) {
       initialCenter = LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
-      initialZoom = 11.5; // Zoom plus proche si on a la loc
+      initialZoom = 11.5;
     }
 
     if (mounted) {
-      // Définit le centre initial pour FlutterMap
       setState(() {
         _mapInitialCenter = initialCenter;
       });
-      // Attend que la carte soit construite avant de la déplacer
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           _mapController.move(initialCenter, initialZoom);
@@ -111,14 +104,12 @@ class _MapPageState extends State<MapPage> {
       });
     }
 
-    // Met à jour la polyline APRÈS avoir potentiellement obtenu la position
     await _updateUserToLastEventPolyline();
 
-    // Attend un peu pour la visibilité et lance le fetch AQI
     await Future.delayed(const Duration(milliseconds: 200));
     if (mounted) {
       await _fetchDataForSelectedParameter();
-      setState(() {}); // Rebuild pour les marqueurs SQFlite
+      setState(() {});
     }
   }
 
@@ -164,7 +155,6 @@ class _MapPageState extends State<MapPage> {
       print(
           "[INFO MapPage] User location obtained: (${position.latitude}, ${position.longitude})");
 
-      // Met à jour la polyline SI la position a changé ou si c'est le premier appel
       if (positionChanged || _userToLastEventPolyline == null) {
         await _updateUserToLastEventPolyline();
       }
@@ -172,7 +162,7 @@ class _MapPageState extends State<MapPage> {
       if (centerMap && _currentPosition != null) {
         _mapController.move(
           LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-          15.0, // Zoom plus proche si centré sur l'utilisateur
+          15.0,
         );
       }
       return true;
@@ -181,20 +171,17 @@ class _MapPageState extends State<MapPage> {
       if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Could not get current location.')));
-      // Si erreur de localisation, on essaie quand même de mettre à jour la polyline
-      // (au cas où on aurait déjà une position précédente et un nouvel événement)
       await _updateUserToLastEventPolyline();
       return false;
     }
   }
 
-  // --- NOUVEAU: Fonction pour mettre à jour la polyline ---
   Future<void> _updateUserToLastEventPolyline() async {
     print("[MapPage] Attempting to update User-to-Last-Event polyline...");
     if (_currentPosition == null) {
       print("[MapPage] No current user position available.");
       if (_userToLastEventPolyline != null && mounted) {
-        setState(() => _userToLastEventPolyline = null); // Efface si elle existait
+        setState(() => _userToLastEventPolyline = null);
       }
       return;
     }
@@ -204,7 +191,7 @@ class _MapPageState extends State<MapPage> {
       if (lastEvent == null) {
         print("[MapPage] No valid last event found in DB.");
         if (_userToLastEventPolyline != null && mounted) {
-          setState(() => _userToLastEventPolyline = null); // Efface si elle existait
+          setState(() => _userToLastEventPolyline = null);
         }
         return;
       }
@@ -212,18 +199,16 @@ class _MapPageState extends State<MapPage> {
       final LatLng userPos = LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
       final LatLng eventPos = LatLng(lastEvent.latitude, lastEvent.longitude);
 
-      // Crée la nouvelle polyline
       final newPolyline = Polyline(
         points: [userPos, eventPos],
-        color: Colors.teal.withOpacity(0.8), // Couleur différente
+        color: Colors.teal.withOpacity(0.8),
         strokeWidth: 3.0,
-        isDotted: true, // Pointillés pour la distinguer
+        isDotted: true,
       );
 
       print("[MapPage] Polyline created between $userPos and $eventPos");
 
       if (mounted) {
-        // Met à jour l'état pour afficher la nouvelle polyline
         setState(() {
           _userToLastEventPolyline = newPolyline;
         });
@@ -231,15 +216,13 @@ class _MapPageState extends State<MapPage> {
     } catch (e) {
       print("[ERROR MapPage] Failed to update user-to-last-event polyline: $e");
       if (_userToLastEventPolyline != null && mounted) {
-        setState(() => _userToLastEventPolyline = null); // Efface en cas d'erreur
+        setState(() => _userToLastEventPolyline = null);
       }
     }
   }
-  // --- FIN NOUVEAU ---
 
 
   Future<void> _fetchDataForSelectedParameter() async {
-    // Identique
     final openAqKey = await SettingsService.getOpenAqApiKey();
     bool keyIsMissing = (openAqKey == null || openAqKey.isEmpty);
     if (mounted) {
@@ -274,7 +257,6 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _zoomIn() {
-    // Identique
     double currentZoom = _mapController.camera.zoom;
     double targetZoom = currentZoom + 1;
     if (targetZoom > _maxZoom) targetZoom = _maxZoom;
@@ -282,7 +264,6 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _zoomOut() {
-    // Identique
     double currentZoom = _mapController.camera.zoom;
     double targetZoom = currentZoom - 1;
     if (targetZoom < _minZoom) targetZoom = _minZoom;
@@ -290,7 +271,6 @@ class _MapPageState extends State<MapPage> {
   }
 
   List<Marker> _buildAirQualityMarkers() {
-    // Identique (avec les améliorations précédentes)
     List<Marker> markers = [];
     int knownParamCount = 0;
     int validValueCount = 0;
@@ -375,7 +355,7 @@ class _MapPageState extends State<MapPage> {
         markers.add(Marker(
           width: 38.0, height: 38.0, point: measurement.coordinates,
           child: GestureDetector(
-            onTap: () { /* ... AlertDialog identique ... */
+            onTap: () {
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
@@ -410,7 +390,7 @@ class _MapPageState extends State<MapPage> {
             },
             child: Tooltip(
               message: "Loc: ${measurement.locationId}\n${_selectedParameterName.toUpperCase()}: ${value.toStringAsFixed(1)} $selectedParamUnit ($aqiCategory)",
-              child: Container( /* ... Container identique ... */
+              child: Container(
                 decoration: BoxDecoration(
                     color: markerColor.withOpacity(0.8),
                     shape: BoxShape.circle,
@@ -434,7 +414,6 @@ class _MapPageState extends State<MapPage> {
 
 
   Future<List<Marker>> _buildSqliteEventMarkers() async {
-    // Identique (avec les améliorations précédentes)
     List<Marker> markers = [];
     try {
       final List<Event> events = await _dbHelper.getAllEvents();
@@ -451,7 +430,7 @@ class _MapPageState extends State<MapPage> {
             child: Tooltip(
               message: "${event.type}\n${event.description.substring(0, (event.description.length > 30 ? 30 : event.description.length))}...",
               child: GestureDetector(
-                onTap: () { /* ... AlertDialog identique ... */
+                onTap: () {
                   DateTime dt = DateTime.now().toLocal();
                   try { dt = DateTime.parse(event.timestamp).toLocal(); } catch (e) { print("Error parsing event timestamp for dialog: ${event.timestamp}"); }
                   final formattedDate = DateFormat.yMd().add_jm().format(dt);
@@ -462,7 +441,7 @@ class _MapPageState extends State<MapPage> {
                     shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(15)),
                   ));
                 },
-                child: Container( /* ... Container identique ... */
+                child: Container(
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.75),
@@ -488,7 +467,6 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _launchUrl(String urlString) async {
-    // Identique
     final Uri url = Uri.parse(urlString);
     try {
       if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
@@ -504,7 +482,6 @@ class _MapPageState extends State<MapPage> {
   }
 
   IconData _getIconForType(String? type) {
-    // Identique
     switch (type) {
       case 'Flood': return Icons.water_drop;
       case 'Drought': return Icons.local_fire_department_outlined;
@@ -518,7 +495,6 @@ class _MapPageState extends State<MapPage> {
   }
 
   Color _getColorForType(String? type, ThemeData theme) {
-    // Identique
     switch (type) {
       case 'Flood': return Colors.blue.shade700;
       case 'Drought': return Colors.orange.shade800;
@@ -539,7 +515,7 @@ class _MapPageState extends State<MapPage> {
         ? 11.5 : _defaultZoom;
 
     return Scaffold(
-      appBar: AppBar( /* ... AppBar identique ... */
+      appBar: AppBar(
         title: Text("AQ Map - $_selectedParameterName"),
         actions: [
           PopupMenuButton<String>( icon: const Icon(Icons.filter_list), tooltip: "Select Pollutant / Parameter",
@@ -552,7 +528,6 @@ class _MapPageState extends State<MapPage> {
       drawer: const CustomDrawer(),
       body: Stack(
         children: [
-          // Carte
           if (_mapInitialCenter != null)
             FlutterMap(
               mapController: _mapController,
@@ -562,18 +537,13 @@ class _MapPageState extends State<MapPage> {
                 interactionOptions: const InteractionOptions( flags: InteractiveFlag.drag | InteractiveFlag.pinchZoom | InteractiveFlag.doubleTapZoom, ),
               ),
               children: [
-                // Fond de carte
                 TileLayer( urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", userAgentPackageName: 'com.example.greenwatch', ),
 
-                // --- NOUVEAU: Polyline Dynamique ---
-                // Affiche la polyline seulement si elle a été calculée
                 if (_userToLastEventPolyline != null)
                   PolylineLayer(
-                    polylines: [_userToLastEventPolyline!], // Utilise la variable d'état
+                    polylines: [_userToLastEventPolyline!],
                   ),
-                // --- FIN NOUVEAU ---
 
-                // Marqueur Utilisateur
                 if (_currentPosition != null)
                   MarkerLayer( markers: [
                     Marker( width: 40.0, height: 40.0, point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
@@ -587,14 +557,12 @@ class _MapPageState extends State<MapPage> {
                   ],
                   ),
 
-                // Marqueurs Qualité de l'Air
                 if (!_isApiKeyMissing && _aqError == null)
                   MarkerLayer(markers: _buildAirQualityMarkers()),
 
-                // Marqueurs SQFlite
                 FutureBuilder<List<Marker>>(
                   future: _buildSqliteEventMarkers(),
-                  builder: (context, snapshot) { /* ... FutureBuilder identique ... */
+                  builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) { return const SizedBox.shrink(); }
                     else if (snapshot.hasError) { print("[MapPage] Error in FutureBuilder for SQLite markers: ${snapshot.error}"); return const SizedBox.shrink(); }
                     else if (snapshot.hasData && snapshot.data!.isNotEmpty) { print("[MapPage] FutureBuilder displaying ${snapshot.data!.length} SQFlite markers."); return MarkerLayer(markers: snapshot.data!); }
@@ -603,11 +571,9 @@ class _MapPageState extends State<MapPage> {
                 ),
               ],
             )
-          else // Indicateur pendant chargement initial
+          else
             const Center(child: CircularProgressIndicator()),
 
-          // Panneau description polluant (Gradient en haut)
-          // Identique
           Positioned( top: 0, left: 0, right: 0,
             child: IgnorePointer( child: Container(
               decoration: BoxDecoration( gradient: LinearGradient( begin: Alignment.topCenter, end: Alignment.bottomCenter,
@@ -620,16 +586,12 @@ class _MapPageState extends State<MapPage> {
             )),
           ),
 
-          // Indicateurs & Erreurs (en bas)
-          // Identique (avec les améliorations précédentes)
           if (_mapInitialCenter != null) ...[
             if (_isLoadingAQ) Positioned( bottom: 80, left: 0, right: 0, child: Center( child: Container( padding: const EdgeInsets.symmetric( horizontal: 15, vertical: 8), decoration: BoxDecoration( color: Colors.black.withOpacity(0.7), borderRadius: BorderRadius.circular(20)), child: const Row( mainAxisSize: MainAxisSize.min, children: [ SizedBox( height: 15, width: 15, child: CircularProgressIndicator( strokeWidth: 2, color: Colors.white)), SizedBox(width: 10), Text('Loading Air Quality Data...', style: TextStyle(color: Colors.white, fontSize: 12)) ])))),
             if (_aqError != null && !_isApiKeyMissing) Positioned( bottom: 80, left: 10, right: 10, child: Container( padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration( color: Colors.redAccent.withOpacity(0.9), borderRadius: BorderRadius.circular(8), boxShadow: const [ BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0,2)) ] ), child: Text( "Air Quality Data Error: $_aqError", style: const TextStyle(color: Colors.white, fontSize: 12), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, ))),
             if (_isApiKeyMissing) Positioned( bottom: 80, left: 10, right: 10, child: Container( padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10), decoration: BoxDecoration( color: Colors.orange.shade800.withOpacity(0.9), borderRadius: BorderRadius.circular(8), boxShadow: const [ BoxShadow( color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)) ]), child: RichText( textAlign: TextAlign.center, text: TextSpan( style: TextStyle( color: Colors.white, fontSize: 13, fontFamily: Theme.of(context) .textTheme .bodyMedium ?.fontFamily), children: [ const TextSpan(text: 'OpenAQ API Key needed in '), TextSpan( text: 'Settings', style: const TextStyle( fontWeight: FontWeight.bold, decoration: TextDecoration.underline), recognizer: TapGestureRecognizer() ..onTap = () => Navigator.pushNamed( context, '/settings') .then((_) => _fetchDataForSelectedParameter()), ), const TextSpan(text: ' to show Air Quality data.'), ]), ), ), ),
           ],
 
-          // Boutons de contrôle (Zoom et MyLocation)
-          // Identique
           Positioned( bottom: 20, right: 10,
             child: Column( mainAxisSize: MainAxisSize.min, children: <Widget>[
               FloatingActionButton.small( heroTag: "btnZoomIn", onPressed: _zoomIn, tooltip: 'Zoom In', child: const Icon(Icons.add)),

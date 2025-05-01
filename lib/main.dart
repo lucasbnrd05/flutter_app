@@ -1,26 +1,24 @@
 // lib/main.dart
-// import 'dart:io'; // <-- Import retiré car Directory n'est plus utilisé directement ici
 import 'dart:math';
 
-import 'package:firebase_auth/firebase_auth.dart'; // Import User de Firebase Auth
-import 'package:firebase_core/firebase_core.dart'; // Import Firebase Core
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart'; // Gardé pour init Hive (temporaire) ou autres besoins potentiels
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// Importe les fichiers locaux
 import 'about.dart';
-import 'auth/auth_page.dart'; // Importe AuthPage pour la route
+import 'auth/auth_page.dart';
 import 'data.dart';
-import 'firebase_options.dart'; // Import le fichier généré par FlutterFire
+import 'firebase_options.dart';
 import 'map.dart';
 import 'models/article.dart';
-import 'services/auth_service.dart'; // Importe notre AuthService
+import 'services/auth_service.dart';
 import 'services/nyt_service.dart';
 import 'services/settings_service.dart';
 import 'settings.dart';
@@ -28,14 +26,10 @@ import 'theme_provider.dart';
 import 'themes.dart';
 import 'ux_unit/custom_drawer.dart';
 
-// Import pour Hive (RETIRÉ - À supprimer des dépendances aussi)
-// import 'package:hive_flutter/hive_flutter.dart';
 
 Future<void> main() async {
-  // 1. Assurer l'initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Initialiser Firebase
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -45,12 +39,9 @@ Future<void> main() async {
     print('[ERROR main] Firebase initialization failed: $e');
   }
 
-  // 3. CHARGER LE THÈME SAUVEGARDÉ
   final ThemeMode initialThemeMode = await ThemeProvider.loadThemeMode();
 
-  // 4. Initialisation Hive RETIRÉE
 
-  // 5. Lancer l'application avec les Providers
   runApp(
     MultiProvider(
       providers: [
@@ -96,7 +87,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// --- HomePage ---
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -135,7 +125,6 @@ class _HomePageState extends State<HomePage> {
   bool _apiKeyMissing = false;
   String? _apiError;
 
-  // Clé pour SharedPreferences pour le popup de bienvenue
   static const String _welcomeDialogShownKey = 'welcome_dialog_shown';
 
   @override
@@ -145,7 +134,6 @@ class _HomePageState extends State<HomePage> {
     _randomEcoTip = _ecoTips[Random().nextInt(_ecoTips.length)];
     _checkApiKeyAndFetch();
 
-    // Vérifie s'il faut afficher le popup après le premier frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _checkAndShowWelcomeDialog();
@@ -153,7 +141,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // Vérifie SharedPreferences et affiche le dialogue si nécessaire
   Future<void> _checkAndShowWelcomeDialog() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -163,9 +150,7 @@ class _HomePageState extends State<HomePage> {
 
       if (!alreadyShown) {
         if (mounted) {
-          // Affiche le dialogue
           _showWelcomeDialog(context);
-          // Marque comme montré pour les prochaines fois
           await prefs.setBool(_welcomeDialogShownKey, true);
           print("[HomePage] Welcome dialog shown and preference set.");
         }
@@ -175,7 +160,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Le dialogue de bienvenue lui-même
   void _showWelcomeDialog(BuildContext context) {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat.yMMMMEEEEd('en_US').format(now);
@@ -596,7 +580,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// --- ArticleCard ---
 class ArticleCard extends StatelessWidget {
   final Article article;
   final VoidCallback onTap;
@@ -655,7 +638,6 @@ class ArticleCard extends StatelessWidget {
     final errorIconColor = Theme.of(context).colorScheme.onSecondaryContainer;
     if (article.imageUrl != null && article.imageUrl!.isNotEmpty) {
       String imageUrl = article.imageUrl!;
-      // Correction si l'URL est relative (manque le domaine NYT)
       if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
         imageUrl = 'https://static01.nyt.com/$imageUrl';
       }
@@ -688,9 +670,8 @@ class ArticleCard extends StatelessWidget {
         },
       );
     } else {
-      // Affiche un placeholder si pas d'image
       return Container(
-        height: imageHeight / 1.5, // Un peu moins haut si pas d'image
+        height: imageHeight / 1.5,
         color: placeholderColor,
         child: Center(
             child: Icon(Icons.image_not_supported,
