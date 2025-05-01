@@ -2,12 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-<key>NSLocationWhenInUseUsageDescription</key>
-<string>Votre application a besoin d'accéder à votre localisation pour afficher votre position sur la carte.</string>
-<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>Votre application a besoin d'accéder à votre localisation pour afficher votre position sur la carte.</string>
-<key>NSLocationUsageDescription</key>
-<string>Votre application a besoin d'accéder à votre localisation pour afficher votre position sur la carte.</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -26,9 +22,28 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.872277255917-9mi4ma09ltvejt5jik4ev156siqvtpca</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Votre application a besoin d'accéder à votre localisation pour afficher votre position sur la carte.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Votre application a besoin d'accéder à votre localisation pour afficher votre position sur la carte.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Votre application a besoin d'accéder à votre localisation pour afficher votre position sur la carte.</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -47,9 +62,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
 </dict>
 </plist>

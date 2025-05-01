@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "872277255917",
+    "project_id": "greenwatch-63622",
+    "storage_bucket": "greenwatch-63622.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:872277255917:android:f16c964f45e5ee96278ee4",
+        "android_client_info": {
+          "package_name": "com.flutter.flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgAHigBWNpyXkU1V-4fgWQGb1-hDUxAO8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,4 +1,4 @@
-name: flutter_app
+name: flutter_app # Remplace flutter_app par le vrai nom de ton projet si différent
 description: "A new Flutter project."
 publish_to: 'none'
 
@@ -10,43 +10,53 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.1          # Pour les appels API (NYT)
+  http: ^1.2.1          # Pour les appels API (NYT, OpenAQ)
   cupertino_icons: ^1.0.6 # Icônes iOS
   flutter_map: ^6.1.0     # Pour la carte
   latlong2: ^0.9.1        # Requis par flutter_map
-  provider: ^6.1.2        # Pour la gestion du thème
-  url_launcher: ^6.3.0    # Pour ouvrir les liens (version plus récente)
-  shared_preferences: ^2.2.3 # INDISPENSABLE pour sauvegarder la clé API
-  geolocator: ^10.1.0 # Ou la dernière version stable
-  intl: ^0.19.0
-  #sqflite: ^2.3.0
-  permission_handler: ^11.0.1 # Pour gérer les permissions (surtout localisation)
-  path_provider: ^2.1.1
-  hive: ^2.2.3          # Add hive
-  hive_flutter: ^1.1.0 # Add hive_flutter
+  provider: ^6.1.2        # Pour la gestion du thème et potentiellement l'état Auth
+  url_launcher: ^6.3.0    # Pour ouvrir les liens
+  shared_preferences: ^2.2.3 # Pour la persistance (clés API, thème)
+  geolocator: ^10.1.0     # Pour la localisation GPS (Vérifie si une version plus récente est stable, ex: ^11.0.0)
+  intl: ^0.19.0           # Pour le formatage (dates)
+  permission_handler: ^11.0.1 # Pour gérer les permissions (localisation, etc.) - Garde-le, c'est utile.
+  path_provider: ^2.1.1   # Pour trouver les chemins de stockage locaux (utilisé par SQFlite)
+  hive: ^2.2.3            # Gardé temporairement
+  hive_flutter: ^1.1.0    # Gardé temporairement
+
+  # --- AJOUTS POUR SQFLITE (SEMAINE 5/6) ---
+  sqflite: ^2.3.3         # Ajout de la dépendance SQFlite (Vérifie la dernière version sur pub.dev)
+  path: ^1.9.0            # Ajout de la dépendance path (souvent requise avec sqflite)
+  # --- FIN AJOUTS SQFLITE ---
+
+  # --- AJOUTS POUR FIREBASE (SEMAINE 7) ---
+  firebase_core: ^3.2.0   # Base Firebase - Vérifie la dernière version sur pub.dev
+  firebase_auth: ^5.1.1   # Authentification Firebase - Vérifie la dernière version sur pub.dev
+  # --- AJOUT POUR GOOGLE SIGN-IN ---
+  google_sign_in: ^6.2.1  # Connexion Google - Vérifie la dernière version sur pub.dev
+  # --- FIN AJOUTS FIREBASE & GOOGLE ---
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0 # Ou plus récent si tu utilises un SDK récent
-  flutter_launcher_icons: ^0.13.1 # Vérifie la dernière version sur pub.dev
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1 # Pour générer les icônes de l'app
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/ # Pour charger ton image nature.jpg etc.
-    - assets/icon/ # Assure-toi que le dossier contenant tes icônes sources est listé ici !
+    - assets/ # Pour charger nature.jpg, app_icon.png, etc.
+    # - assets/icon/ # Liste ce dossier seulement si tu utilises ses images DANS l'app via Image.asset()
 
 flutter_launcher_icons:
   # --- Pour Android ---
-  android: true # Générer les icônes Android
-  image_path: "assets/icon/Greenwatch_Logo.jpeg" # CHEMIN VERS TON IMAGE SOURCE MODIFIÉE (sans texte)
-  min_sdk_android: 21 # Minimum SDK requis pour les adaptive icons
-  # Optionnel: Pour les adaptive icons (recommandé)
-  adaptive_icon_background: "#FFFFFF" # Couleur de fond (HEX) OU chemin vers une image assets/icon/background.png
-  adaptive_icon_foreground: "assets/icon/icon_foreground.png" # CHEMIN VERS TON IMAGE SOURCE (juste la feuille, si possible transparente)
+  android: true
+  image_path: "assets/icon/Greenwatch_Logo.jpeg" # Chemin vers ton logo source
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF" # Ou "assets/icon/background.png"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png" # Chemin vers l'avant-plan de l'icône adaptative
 
   # --- Pour iOS ---
-  ios: true # Générer les icônes iOS
-  image_path_ios: "assets/icon/Greenwatch_Logo.jpeg" # CHEMIN VERS TON IMAGE SOURCE MODIFIÉE (peut être la même)
-  remove_alpha_ios: true # Recommandé si ton icône iOS n'a pas besoin de transparence
+  ios: true
+  image_path_ios: "assets/icon/Greenwatch_Logo.jpeg" # Peut être le même chemin
+  remove_alpha_ios: true
