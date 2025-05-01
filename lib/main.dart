@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'dart:math';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
+
+// Importe les fichiers locaux
 import 'themes.dart';
 import 'theme_provider.dart';
 import 'ux_unit/custom_drawer.dart';
@@ -15,11 +17,12 @@ import 'data.dart';
 import 'models/article.dart';
 import 'services/nyt_service.dart';
 import 'services/settings_service.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+// Imports nécessaires restants (path_provider peut être utilisé par sqflite/geolocator)
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
+
+// Imports Firebase
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
@@ -37,20 +40,8 @@ Future<void> main() async {
     print('[ERROR main] Firebase initialization failed: $e');
   }
   final ThemeMode initialThemeMode = await ThemeProvider.loadThemeMode();
-  if (!kIsWeb) {
-    try {
-      final Directory appDocumentDir = await getApplicationDocumentsDirectory();
-      await Hive.initFlutter(appDocumentDir.path);
-      print('[INFO main] Hive initialized at: ${appDocumentDir.path}');
-    } catch (e) {
-      print("[ERROR main] Error initializing Hive path: $e");
-      await Hive.initFlutter();
-      print("[WARN main] Hive initialized without specific path (fallback).");
-    }
-  } else {
-    await Hive.initFlutter();
-    print('[INFO main] Hive initialized for Web.');
-  }
+
+  // Plus d'initialisation Hive ici
 
   runApp(
     MultiProvider(
@@ -97,6 +88,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// --- HomePage et ArticleCard restent inchangés ---
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override

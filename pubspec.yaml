@@ -1,4 +1,4 @@
-name: flutter_app # Remplace flutter_app par le vrai nom de ton projet si différent
+name: flutter_app # Remplace si besoin
 description: "A new Flutter project."
 publish_to: 'none'
 
@@ -10,53 +10,47 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.1          # Pour les appels API (NYT, OpenAQ)
-  cupertino_icons: ^1.0.6 # Icônes iOS
-  flutter_map: ^6.1.0     # Pour la carte
-  latlong2: ^0.9.1        # Requis par flutter_map
-  provider: ^6.1.2        # Pour la gestion du thème et potentiellement l'état Auth
-  url_launcher: ^6.3.0    # Pour ouvrir les liens
-  shared_preferences: ^2.2.3 # Pour la persistance (clés API, thème)
-  geolocator: ^10.1.0     # Pour la localisation GPS (Vérifie si une version plus récente est stable, ex: ^11.0.0)
-  intl: ^0.19.0           # Pour le formatage (dates)
-  permission_handler: ^11.0.1 # Pour gérer les permissions (localisation, etc.) - Garde-le, c'est utile.
-  path_provider: ^2.1.1   # Pour trouver les chemins de stockage locaux (utilisé par SQFlite)
-  hive: ^2.2.3            # Gardé temporairement
-  hive_flutter: ^1.1.0    # Gardé temporairement
+  http: ^1.2.1
+  cupertino_icons: ^1.0.6
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.1
+  provider: ^6.1.2
+  url_launcher: ^6.3.0
+  shared_preferences: ^2.2.3
+  geolocator: ^10.1.0 # Envisage ^11.0.0 ou ^12.0.0 si compatible
+  intl: ^0.19.0
+  permission_handler: ^11.0.1 # Envisage ^11.3.0 ou plus récent
+  path_provider: ^2.1.1 # Gardé pour SQFlite
 
-  # --- AJOUTS POUR SQFLITE (SEMAINE 5/6) ---
-  sqflite: ^2.3.3         # Ajout de la dépendance SQFlite (Vérifie la dernière version sur pub.dev)
-  path: ^1.9.0            # Ajout de la dépendance path (souvent requise avec sqflite)
-  # --- FIN AJOUTS SQFLITE ---
+  # --- SQFlite ---
+  sqflite: ^2.3.3
+  path: ^1.9.0
+  # --- Fin SQFlite ---
 
-  # --- AJOUTS POUR FIREBASE (SEMAINE 7) ---
-  firebase_core: ^3.2.0   # Base Firebase - Vérifie la dernière version sur pub.dev
-  firebase_auth: ^5.1.1   # Authentification Firebase - Vérifie la dernière version sur pub.dev
-  # --- AJOUT POUR GOOGLE SIGN-IN ---
-  google_sign_in: ^6.2.1  # Connexion Google - Vérifie la dernière version sur pub.dev
-  # --- FIN AJOUTS FIREBASE & GOOGLE ---
+  # --- Firebase & Google ---
+  firebase_core: ^3.2.0 # Envisage ^3.3.0 ou plus récent
+  firebase_auth: ^5.1.1 # Envisage ^5.3.0 ou plus récent
+  google_sign_in: ^6.2.1
+  # --- Fin Firebase & Google ---
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
-  flutter_launcher_icons: ^0.13.1 # Pour générer les icônes de l'app
+  flutter_lints: ^3.0.0 # Envisage ^4.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/ # Pour charger nature.jpg, app_icon.png, etc.
-    # - assets/icon/ # Liste ce dossier seulement si tu utilises ses images DANS l'app via Image.asset()
+    - assets/
+    # - assets/icon/ # Seulement si utilisé DANS l'app
 
 flutter_launcher_icons:
-  # --- Pour Android ---
   android: true
-  image_path: "assets/icon/Greenwatch_Logo.jpeg" # Chemin vers ton logo source
+  image_path: "assets/icon/Greenwatch_Logo.jpeg"
   min_sdk_android: 21
-  adaptive_icon_background: "#FFFFFF" # Ou "assets/icon/background.png"
-  adaptive_icon_foreground: "assets/icon/icon_foreground.png" # Chemin vers l'avant-plan de l'icône adaptative
-
-  # --- Pour iOS ---
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
   ios: true
-  image_path_ios: "assets/icon/Greenwatch_Logo.jpeg" # Peut être le même chemin
+  image_path_ios: "assets/icon/Greenwatch_Logo.jpeg"
   remove_alpha_ios: true
