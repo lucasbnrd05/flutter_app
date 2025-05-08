@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenWatch - Monitor Environmental Impact</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Optional: Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            padding-top: 56px; /* Height of the fixed navbar */
+        }
+        .hero-section {
+            background-color: #e9ecef; /* Soft background color */
+            padding: 5rem 1.5rem;
+            text-align: center;
+        }
+        .hero-section h1 {
+            color: #28a745; /* Green for GreenWatch */
+        }
+        .section-title {
+            color: #28a745; /* Green for section titles */
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #28a745; /* Green for icons */
+        }
+        .team-member {
+            margin-bottom: 1rem;
+        }
+        footer {
+            background-color: #343a40;
+            color: white;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#" style="color: #28a745; font-weight: bold;">
+                <i class="bi bi-droplet-half"></i> GreenWatch
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#description">Description</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#impact">Environmental Impact</a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="#upcoming">Upcoming</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#team">The Team</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-success ms-lg-2" href="https://github.com/lucasbnrd05/flutter_app/releases" target="_blank">Download</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="container">
+            <h1 class="display-4">GreenWatch</h1>
+            <p class="lead">Your ally for monitoring and staying informed about the environmental impacts of droughts and floods.</p>
+            <p>Stay informed, stay prepared.</p>
+            <a href="https://github.com/lucasbnrd05/flutter_app/releases" class="btn btn-success btn-lg mt-3" target="_blank">
+                <i class="bi bi-download"></i> Download Latest Release
+            </a>
+            <a href="https://github.com/lucasbnrd05/flutter_app" class="btn btn-outline-secondary btn-lg mt-3" target="_blank">
+                <i class="bi bi-github"></i> View on GitHub
+            </a>
+        </div>
+    </header>
+
+    <!-- Description Section -->
+    <section id="description" class="py-5">
+        <div class="container">
+            <h2 class="section-title">What is GreenWatch?</h2>
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="lead">GreenWatch is a cutting-edge Flutter-based mobile application designed to help users monitor and stay informed about the environmental impacts of droughts and floods.</p>
+                    <p>With real-time data and predictive analytics, the app empowers individuals, communities, and organizations to stay one step ahead when it comes to managing water-related natural disasters. Whether you’re looking to track ongoing drought conditions or monitor flood risks, GreenWatch provides vital information and updates, ensuring you are always prepared for the unexpected.</p>
+                </div>
+                <div class="col-md-6 text-center">
+                    <img src="icon_foreground.png" class="img-fluid rounded shadow" alt="GreenWatch App Logo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section / How it works -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title">Key Features</h2>
+            <div class="row text-center">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="feature-icon mb-3"><i class="bi bi-broadcast-pin"></i></div>
+                            <h5 class="card-title">Real-Time Data</h5>
+                            <p class="card-text">Utilizes state-of-the-art sensors, satellite imagery, and local weather data for up-to-date insights.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="feature-icon mb-3"><i class="bi bi-graph-up-arrow"></i></div>
+                            <h5 class="card-title">Predictive Analytics</h5>
+                            <p class="card-text">Provides predictions and alerts regarding drought and flood events to help you prepare.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="feature-icon mb-3"><i class="bi bi-people-fill"></i></div>
+                            <h5 class="card-title">Community Reports</h5>
+                            <p class="card-text">Integrates community-driven reports and observations to create a more comprehensive picture.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                 <div class="col-12">
+                    <p>The app uses state-of-the-art sensors, satellite imagery, and local weather data to provide real-time insights, predictions, and alerts regarding drought and flood events. It also integrates community-driven reports and observations to create a more comprehensive picture of the environment, offering a powerful tool for decision-makers and concerned citizens alike.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Environmental Impact Section -->
+    <section id="impact" class="py-5">
+        <div class="container">
+            <h2 class="section-title">Environmental Impact & Justification</h2>
+            <p>GreenWatch serves as a proactive environmental monitoring solution that aligns with global efforts to mitigate the effects of climate change. By providing users with real-time insights into drought and flood risks, the app promotes better resource management and early warning systems that can save lives and minimize damage.</p>
+            <p>This app directly contributes to raising awareness about water scarcity, the growing frequency of extreme weather events, and the importance of sustainable water practices. By empowering individuals and communities to take informed actions, GreenWatch plays a crucial role in mitigating the environmental impacts of these devastating events and fostering a more resilient future.</p>
+        </div>
+    </section>
+
+    <!-- Upcoming Section -->
+    <section id="upcoming" class="py-5 bg-light">
+        <div class="container text-center">
+            <h2 class="section-title">Upcoming Photos & Video Tutorials</h2>
+            <p class="lead">GreenWatch is more than just an app; it's a commitment to protecting the planet and enhancing disaster preparedness.</p>
+            <p>Stay connected, stay informed, and be a part of the change with GreenWatch.</p>
+            <i class="bi bi-camera-reels feature-icon mt-3"></i>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="py-5">
+        <div class="container">
+            <h2 class="section-title">Our Team</h2>
+            <p class="text-center mb-4"><strong>Workload distribution:</strong> (33% / 33% / 33%).</p>
+            <div class="row">
+                <div class="col-md-4 team-member text-center">
+                    <h5>Lucas BERNARDEAU</h5>
+                    <p><a href="mailto:lucas.bernardeau@alumnos.upm.es">lucas.bernardeau@alumnos.upm.es</a></p>
+                </div>
+                <div class="col-md-4 team-member text-center">
+                    <h5>Nathan VANATHATHAN</h5>
+                    <p><a href="mailto:nathan.vanathathan@alumnos.upm.es">nathan.vanathathan@alumnos.upm.es</a></p>
+                </div>
+                <div class="col-md-4 team-member text-center">
+                    <h5>Dina DIDOUCHE</h5>
+                    <p><a href="mailto:dina.didouche@alumnos.upm.es">dina.didouche@alumnos.upm.es</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-4">
+        <div class="container text-center">
+            <p>© 2025 GreenWatch. All rights reserved.</p>
+            <p>
+                <a href="https://github.com/lucasbnrd05/flutter_app" target="_blank" class="text-white me-2"><i class="bi bi-github"></i> GitHub Repository</a> |
+                <a href="https://github.com/lucasbnrd05/flutter_app/releases" target="_blank" class="text-white mx-2"><i class="bi bi-download"></i> Releases</a> |
+                <a href="https://upm365.sharepoint.com/:u:/r/sites/epitie/SitePages/Tracking-Flutter.aspx?csf=1&web=1&share=ERQ4AecSDGlIjkkjupbnnoIBCgofHk8oxr3feB9Pdgu4Gg&e=QPPVfH" target="_blank" class="text-white ms-2"><i class="bi bi-folder-symlink"></i> Sharepoint Workspace</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle (Popper.js included) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>bi bi
