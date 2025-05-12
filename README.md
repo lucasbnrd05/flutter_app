@@ -1,6 +1,6 @@
 # GreenWatch - Flutter Application
 
-## Github
+## GitHub
 - Repository: [GreenWatch](https://github.com/lucasbnrd05/flutter_app)
 - Releases: [Releases](https://github.com/lucasbnrd05/flutter_app/releases)
 
